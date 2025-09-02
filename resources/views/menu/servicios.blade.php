@@ -1,283 +1,317 @@
-{{-- resources/views/app/servicios.blade.php --}}
-@php
-  // Datos de ejemplo pensados para una ESTÉTICA si no llegan desde el controlador.
-  $items = $items ?? [
-    ['code' => 'CUT-DAMA', 'name' => 'Corte de dama',         'category' => 'Cabello',   'duration' => 45, 'price' => 250,  'stylist' => 'Ana'],
-    ['code' => 'CUT-CAB',  'name' => 'Corte caballero',       'category' => 'Cabello',   'duration' => 30, 'price' => 180,  'stylist' => 'Luis'],
-    ['code' => 'TINTE',    'name' => 'Coloración completa',   'category' => 'Cabello',   'duration' => 120,'price' => 950,  'stylist' => 'Sofía'],
-    ['code' => 'MANI',     'name' => 'Manicure clásico',      'category' => 'Uñas',      'duration' => 45, 'price' => 220,  'stylist' => 'Paola'],
-    ['code' => 'PEDI',     'name' => 'Pedicure spa',          'category' => 'Uñas',      'duration' => 60, 'price' => 320,  'stylist' => 'Paola'],
-    ['code' => 'KERAT',    'name' => 'Keratina / Alisado',    'category' => 'Cabello',   'duration' => 150,'price' => 1800, 'stylist' => 'Luis'],
-    ['code' => 'DEP-CEJ',  'name' => 'Depilación de ceja',    'category' => 'Depilación','duration' => 15, 'price' => 120,  'stylist' => 'Ana'],
-    ['code' => 'MAQ-EVE',  'name' => 'Maquillaje de evento',  'category' => 'Maquillaje','duration' => 90, 'price' => 950,  'stylist' => 'Sofía'],
-  ];
-@endphp
-
-<x-app-layout>
-  <x-slot name="header">
-    <h2 class="font-semibold text-xl text-slate-800 dark:text-slate-100 leading-tight">
-      {{ __('Servicios de Estética') }}
-    </h2>
-  </x-slot>
-
-  {{-- ====== Tabla responsive (móvil + desktop) enfocada a estética ====== --}}
-  <div
-    x-data="tableSetup({ items: @js($items) })"
-    x-init="$watch('q', () => resetPage()); $watch('cat', () => resetPage()); $watch('pro', () => resetPage()); $watch('perPage', () => resetPage())"
-    class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4"
-  >
-    {{-- Controles --}}
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 sm:p-5 shadow">
-      <div class="flex flex-col gap-4">
-        <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
-          <div class="sm:col-span-2">
-            <label class="sr-only" for="q">Buscar</label>
-            <input id="q" type="text" x-model="q" placeholder="Buscar servicio, profesional o código…"
-                   class="w-full px-4 py-2.5 rounded-xl border border-slate-200/60 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-inset focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-          </div>
-
-          <div>
-            <label class="sr-only" for="cat">Categoría</label>
-            <select id="cat" x-model="cat"
-                    class="w-full px-3 py-2.5 rounded-xl border border-slate-200/60 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-inset focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-              <option value="">Todas las categorías</option>
-              <template x-for="c in categories" :key="c">
-                <option :value="c" x-text="c"></option>
-              </template>
-            </select>
-          </div>
-
-          <div>
-            <label class="sr-only" for="pro">Profesional</label>
-            <select id="pro" x-model="pro"
-                    class="w-full px-3 py-2.5 rounded-xl border border-slate-200/60 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-inset focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-              <option value="">Todo el equipo</option>
-              <template x-for="s in stylists" :key="s">
-                <option :value="s" x-text="s"></option>
-              </template>
-            </select>
-          </div>
-
-          <div>
-            <label class="sr-only" for="perPage">Por página</label>
-            <select id="perPage" x-model.number="perPage"
-                    class="w-full px-3 py-2.5 rounded-xl border border-slate-200/60 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-inset focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-              <option :value="5">5</option>
-              <option :value="8">8</option>
-              <option :value="12">12</option>
-              <option :value="20">20</option>
-            </select>
-          </div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios de Estética</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div x-data="appData()" x-cloak class="container mx-auto px-4 py-6 max-w-6xl">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">Servicios de Estética</h1>
+            <p class="text-gray-600">Gestiona tus servicios y categorías</p>
         </div>
 
-        <div class="flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
-          <span>Total: <span class="font-semibold" x-text="filtered.length"></span> servicios</span>
-          <span>Página <span class="font-semibold" x-text="page"></span>/<span class="font-semibold" x-text="pageCount"></span></span>
-        </div>
-      </div>
-    </div>
-
-    {{-- Versión móvil: cards --}}
-    <div class="block md:hidden">
-      <div class="space-y-3">
-        <template x-if="paged.length === 0">
-          <div class="border-2 border-dashed rounded-xl p-6 text-center text-slate-500 dark:text-slate-400">
-            Sin resultados.
-          </div>
-        </template>
-
-        <template x-for="it in paged" :key="it.code">
-          <div class="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-xl p-4 shadow-sm">
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <div class="text-base font-semibold" x-text="it.name"></div>
-                <div class="mt-1 flex flex-wrap items-center gap-2">
-                  <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs border bg-slate-50 dark:bg-slate-800 border-slate-200/60 dark:border-slate-700" x-text="it.category"></span>
-                  <span class="text-xs text-slate-500">Código: <span x-text="it.code"></span></span>
-                  <span class="text-xs text-slate-500">Duración: <span x-text="it.duration"></span> min</span>
-                  <span class="text-xs text-slate-500">Pro: <span x-text="it.stylist"></span></span>
+        <!-- Controles superiores -->
+        <div class="bg-white rounded-lg shadow-sm border p-4 mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                <!-- Búsqueda -->
+                <div class="col-span-1 sm:col-span-2">
+                    <input 
+                        x-model="search"
+                        type="text"
+                        placeholder="Buscar servicio..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
                 </div>
-              </div>
-              <div class="text-right">
-                <div class="text-sm text-slate-500">Desde</div>
-                <div class="text-lg font-bold text-emerald-600" x-text="currency(it.price)"></div>
-              </div>
+                
+                <!-- Botón Categorías -->
+                <button 
+                    @click="showCategories = true"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                    Ver Categorías
+                </button>
             </div>
 
-            <div class="mt-3 flex gap-2">
-              <button class="px-3 py-2 rounded-lg border border-slate-200/60 dark:border-slate-700 text-sm font-medium">Agendar</button>
-              <button class="px-3 py-2 rounded-lg border border-slate-200/60 dark:border-slate-700 text-sm font-medium">Editar</button>
-              <button class="px-3 py-2 rounded-lg border border-rose-200 text-rose-700 text-sm font-medium">Eliminar</button>
+            <!-- Filtros -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <select x-model="filterCategory" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <option value="">Todas las categorías</option>
+                    <template x-for="cat in categories" :key="cat.id">
+                        <option :value="cat.nombre" x-text="cat.nombre"></option>
+                    </template>
+                </select>
+
+                <select x-model="filterProfessional" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <option value="">Todos los profesionales</option>
+                    <template x-for="pro in professionals" :key="pro">
+                        <option :value="pro" x-text="pro"></option>
+                    </template>
+                </select>
+
+                <select x-model="perPage" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <option value="5">5 por página</option>
+                    <option value="10">10 por página</option>
+                    <option value="20">20 por página</option>
+                </select>
+
+                <div class="text-sm text-gray-600 flex items-center">
+                    Total: <span class="font-semibold ml-1" x-text="filteredServices.length"></span>
+                </div>
             </div>
-          </div>
-        </template>
-      </div>
+        </div>
 
-      {{-- Paginación móvil --}}
-      <div class="mt-4 flex items-center justify-between">
-        <button
-          class="px-3 py-2 rounded-lg border border-slate-200/60 dark:border-slate-700 text-sm font-medium disabled:opacity-50"
-          :disabled="page<=1" @click="page = Math.max(1, page-1)">Anterior</button>
-        <div class="text-sm text-slate-600 dark:text-slate-400">Página <span class="font-semibold" x-text="page"></span>/<span class="font-semibold" x-text="pageCount"></span></div>
-        <button
-          class="px-3 py-2 rounded-lg border border-slate-200/60 dark:border-slate-700 text-sm font-medium disabled:opacity-50"
-          :disabled="page>=pageCount" @click="page = Math.min(pageCount, page+1)">Siguiente</button>
-      </div>
+        <!-- Tabla Mobile -->
+        <div class="block md:hidden space-y-3">
+            <template x-for="service in paginatedServices" :key="service.id">
+                <div class="bg-white rounded-lg border shadow-sm p-4">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-800" x-text="service.nombre"></h3>
+                            <p class="text-sm text-gray-600" x-text="service.codigo"></p>
+                        </div>
+                        <span class="text-lg font-bold text-green-600" x-text="'$' + service.precio"></span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 text-sm text-gray-600 mb-3">
+                        <div>Categoría: <span class="font-medium" x-text="service.categoria"></span></div>
+                        <div>Duración: <span class="font-medium" x-text="service.duracion + ' min'"></span></div>
+                        <div class="col-span-2">Profesional: <span class="font-medium" x-text="service.profesional"></span></div>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <button class="flex-1 bg-blue-500 text-white px-3 py-2 rounded-lg text-sm font-medium">
+                            Agendar
+                        </button>
+                        <button class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                            Editar
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Tabla Desktop -->
+        <div class="hidden md:block bg-white rounded-lg shadow-sm border overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Código</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Servicio</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Categoría</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Duración</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Profesional</th>
+                            <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">Precio</th>
+                            <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <template x-for="service in paginatedServices" :key="service.id">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 text-sm font-medium text-gray-600" x-text="service.codigo"></td>
+                                <td class="px-4 py-3 text-sm font-semibold text-gray-800" x-text="service.nombre"></td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                                          x-text="service.categoria">
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-600" x-text="service.duracion + ' min'"></td>
+                                <td class="px-4 py-3 text-sm text-gray-600" x-text="service.profesional"></td>
+                                <td class="px-4 py-3 text-sm font-bold text-green-600 text-right" x-text="'$' + service.precio"></td>
+                                <td class="px-4 py-3">
+                                    <div class="flex justify-center gap-2">
+                                        <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded text-sm">
+                                            Agendar
+                                        </button>
+                                        <button class="border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded text-sm">
+                                            Editar
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-lg border p-4">
+            <div class="text-sm text-gray-600">
+                Mostrando <span x-text="((currentPage - 1) * perPage) + 1"></span> - 
+                <span x-text="Math.min(currentPage * perPage, filteredServices.length)"></span> 
+                de <span x-text="filteredServices.length"></span> resultados
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button 
+                    @click="currentPage = Math.max(1, currentPage - 1)"
+                    :disabled="currentPage === 1"
+                    :class="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'"
+                    class="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                >
+                    Anterior
+                </button>
+                
+                <span class="px-3 py-2 text-sm text-gray-600">
+                    Página <span x-text="currentPage"></span> de <span x-text="totalPages"></span>
+                </span>
+                
+                <button 
+                    @click="currentPage = Math.min(totalPages, currentPage + 1)"
+                    :disabled="currentPage === totalPages"
+                    :class="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'"
+                    class="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                >
+                    Siguiente
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal Categorías -->
+        <div x-show="showCategories" 
+             @click.away="showCategories = false"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            
+            <div @click.stop 
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 transform scale-95"
+                 x-transition:enter-end="opacity-100 transform scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 transform scale-100"
+                 x-transition:leave-end="opacity-0 transform scale-95"
+                 class="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-hidden">
+                
+                <div class="flex items-center justify-between p-4 border-b">
+                    <h2 class="text-lg font-semibold text-gray-800">Categorías de Servicios</h2>
+                    <button @click="showCategories = false" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="p-4 overflow-y-auto max-h-[60vh]">
+                    <div class="grid gap-4">
+                        <template x-for="category in categories" :key="category.id">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="font-semibold text-gray-800" x-text="category.nombre"></h3>
+                                    <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full" 
+                                          x-text="category.servicios_count + ' servicios'"></span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-3" x-text="category.descripcion"></p>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-gray-500">
+                                    <div>Color: <span class="font-medium" x-text="category.color"></span></div>
+                                    <div>Estado: <span class="font-medium" x-text="category.activo ? 'Activo' : 'Inactivo'"></span></div>
+                                    <div>Orden: <span class="font-medium" x-text="category.orden"></span></div>
+                                    <div>ID: <span class="font-medium" x-text="category.id"></span></div>
+                                </div>
+                                <div class="mt-3 flex gap-2">
+                                    <button class="bg-blue-500 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-600">
+                                        Editar
+                                    </button>
+                                    <button class="border border-red-300 text-red-600 px-3 py-1.5 rounded text-sm hover:bg-red-50">
+                                        Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                
+                <div class="p-4 border-t bg-gray-50 flex justify-end gap-2">
+                    <button @click="showCategories = false" 
+                            class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+                        Cerrar
+                    </button>
+                    <button class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600">
+                        Nueva Categoría
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    {{-- Versión desktop: tabla --}}
-    <div class="hidden md:block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-sm">
-          <thead class="bg-slate-50 dark:bg-slate-950/40 border-b border-slate-200/60 dark:border-slate-800">
-            <tr>
-              <th class="text-left px-5 py-4 font-semibold cursor-pointer select-none" @click="setSort('code')">
-                Código
-                <span class="ml-1" x-show="sortKey==='code'" x-text="sortDir==='asc' ? '▲' : '▼'"></span>
-              </th>
-              <th class="text-left px-5 py-4 font-semibold cursor-pointer select-none" @click="setSort('name')">
-                Servicio
-                <span class="ml-1" x-show="sortKey==='name'" x-text="sortDir==='asc' ? '▲' : '▼'"></span>
-              </th>
-              <th class="text-left px-5 py-4 font-semibold cursor-pointer select-none" @click="setSort('category')">
-                Categoría
-                <span class="ml-1" x-show="sortKey==='category'" x-text="sortDir==='asc' ? '▲' : '▼'"></span>
-              </th>
-              <th class="text-left px-5 py-4 font-semibold cursor-pointer select-none" @click="setSort('duration')">
-                Duración
-                <span class="ml-1" x-show="sortKey==='duration'" x-text="sortDir==='asc' ? '▲' : '▼'"></span>
-              </th>
-              <th class="text-left px-5 py-4 font-semibold cursor-pointer select-none" @click="setSort('stylist')">
-                Profesional
-                <span class="ml-1" x-show="sortKey==='stylist'" x-text="sortDir==='asc' ? '▲' : '▼'"></span>
-              </th>
-              <th class="text-right px-5 py-4 font-semibold cursor-pointer select-none" @click="setSort('price')">
-                Precio
-                <span class="ml-1" x-show="sortKey==='price'" x-text="sortDir==='asc' ? '▲' : '▼'"></span>
-              </th>
-              <th class="text-right px-5 py-4 font-semibold">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <template x-if="paged.length === 0">
-              <tr>
-                <td colspan="7" class="px-5 py-8 text-center text-slate-500 dark:text-slate-400">Sin resultados</td>
-              </tr>
-            </template>
-
-            <template x-for="it in paged" :key="it.code">
-              <tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-900/40">
-                <td class="px-5 py-4 font-medium" x-text="it.code"></td>
-                <td class="px-5 py-4 font-semibold" x-text="it.name"></td>
-                <td class="px-5 py-4">
-                  <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs border bg-slate-50 dark:bg-slate-800 border-slate-200/60 dark:border-slate-700"
-                        x-text="it.category"></span>
-                </td>
-                <td class="px-5 py-4"><span x-text="it.duration"></span> min</td>
-                <td class="px-5 py-4" x-text="it.stylist"></td>
-                <td class="px-5 py-4 text-right font-bold text-emerald-600" x-text="currency(it.price)"></td>
-                <td class="px-5 py-4 text-right">
-                  <button class="px-3 py-1.5 rounded-lg border border-primary-200 text-primary-700 dark:text-primary-400 mr-2 text-sm font-medium">Agendar</button>
-                  <button class="px-3 py-1.5 rounded-lg border border-slate-200/60 dark:border-slate-700 mr-2 text-sm font-medium">Editar</button>
-                  <button class="px-3 py-1.5 rounded-lg border border-rose-200 text-rose-700 text-sm font-medium">Eliminar</button>
-                </td>
-              </tr>
-            </template>
-          </tbody>
-        </table>
-      </div>
-
-      {{-- Paginación desktop --}}
-      <div class="p-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div class="text-sm text-slate-600 dark:text-slate-400">
-          Mostrando
-          <span class="font-semibold" x-text="((page-1)*perPage)+1"></span> –
-          <span class="font-semibold" x-text="Math.min(page*perPage, sorted.length)"></span>
-          de <span class="font-semibold" x-text="sorted.length"></span>
-        </div>
-        <div class="flex items-center gap-2">
-          <button class="px-3 py-2 rounded-lg border border-slate-200/60 dark:border-slate-700 text-sm font-medium disabled:opacity-50"
-                  :disabled="page<=1" @click="page = Math.max(1, page-1)">Anterior</button>
-          <div class="text-sm px-2">Página <span class="font-semibold" x-text="page"></span>/<span class="font-semibold" x-text="pageCount"></span></div>
-          <button class="px-3 py-2 rounded-lg border border-slate-200/60 dark:border-slate-700 text-sm font-medium disabled:opacity-50"
-                  :disabled="page>=pageCount" @click="page = Math.min(pageCount, page+1)">Siguiente</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  {{-- ====== /Tabla responsive estética ====== --}}
-
-  <!-- Alpine helper -->
-  <script>
-    function tableSetup({ items }) {
-      return {
-        items,
-        q: '',
-        cat: '',
-        pro: '',
-        sortKey: 'name',
-        sortDir: 'asc',
-        perPage: 8,
-        page: 1,
-        get categories() {
-          return Array.from(new Set(this.items.map(i => i.category))).sort();
-        },
-        get stylists() {
-          return Array.from(new Set(this.items.map(i => i.stylist))).sort();
-        },
-        get filtered() {
-          const q = this.q.trim().toLowerCase();
-          return this.items.filter(i =>
-            (!this.cat || i.category === this.cat) &&
-            (!this.pro || i.stylist === this.pro) &&
-            (!q || i.name.toLowerCase().includes(q)
-               || i.stylist.toLowerCase().includes(q)
-               || (i.code||'').toLowerCase().includes(q)
-               || i.category.toLowerCase().includes(q))
-          );
-        },
-        get sorted() {
-          const dir = this.sortDir === 'asc' ? 1 : -1;
-          const key = this.sortKey;
-          return [...this.filtered].sort((a, b) => {
-            let A = a[key], B = b[key];
-            if (typeof A === 'string') { A = A.toLowerCase(); B = B.toLowerCase(); }
-            return (A > B ? 1 : A < B ? -1 : 0) * dir;
-          });
-        },
-        get pageCount() {
-          return Math.max(1, Math.ceil(this.sorted.length / this.perPage));
-        },
-        get paged() {
-          const start = (this.page - 1) * this.perPage;
-          return this.sorted.slice(start, start + this.perPage);
-        },
-        setSort(key) {
-          if (this.sortKey === key) this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
-          else { this.sortKey = key; this.sortDir = 'asc'; }
-        },
-        resetPage() { this.page = 1; },
-        currency(v) {
-          try { return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(v); }
-          catch { return '$' + Number(v).toFixed(2); }
+    <script>
+        function appData() {
+            return {
+                showCategories: false,
+                search: '',
+                filterCategory: '',
+                filterProfessional: '',
+                perPage: 10,
+                currentPage: 1,
+                
+                // Datos de ejemplo - Servicios
+                services: [
+                    { id: 1, codigo: 'CUT-DAMA', nombre: 'Corte de dama', categoria: 'Cabello', duracion: 45, precio: 250, profesional: 'Ana' },
+                    { id: 2, codigo: 'CUT-CAB', nombre: 'Corte caballero', categoria: 'Cabello', duracion: 30, precio: 180, profesional: 'Luis' },
+                    { id: 3, codigo: 'TINTE', nombre: 'Coloración completa', categoria: 'Cabello', duracion: 120, precio: 950, profesional: 'Sofía' },
+                    { id: 4, codigo: 'MANI', nombre: 'Manicure clásico', categoria: 'Uñas', duracion: 45, precio: 220, profesional: 'Paola' },
+                    { id: 5, codigo: 'PEDI', nombre: 'Pedicure spa', categoria: 'Uñas', duracion: 60, precio: 320, profesional: 'Paola' },
+                    { id: 6, codigo: 'KERAT', nombre: 'Keratina / Alisado', categoria: 'Cabello', duracion: 150, precio: 1800, profesional: 'Luis' },
+                    { id: 7, codigo: 'DEP-CEJ', nombre: 'Depilación de ceja', categoria: 'Depilación', duracion: 15, precio: 120, profesional: 'Ana' },
+                    { id: 8, codigo: 'MAQ-EVE', nombre: 'Maquillaje de evento', categoria: 'Maquillaje', duracion: 90, precio: 950, profesional: 'Sofía' }
+                ],
+                
+                // Datos de ejemplo - Categorías
+                categories: [
+                    { id: 1, nombre: 'Cabello', descripcion: 'Servicios especializados en cuidado y estilismo capilar', color: '#3B82F6', activo: true, orden: 1, servicios_count: 4 },
+                    { id: 2, nombre: 'Uñas', descripcion: 'Manicure, pedicure y cuidado de uñas', color: '#EC4899', activo: true, orden: 2, servicios_count: 2 },
+                    { id: 3, nombre: 'Depilación', descripcion: 'Servicios de depilación facial y corporal', color: '#10B981', activo: true, orden: 3, servicios_count: 1 },
+                    { id: 4, nombre: 'Maquillaje', descripcion: 'Maquillaje profesional para eventos y ocasiones especiales', color: '#F59E0B', activo: true, orden: 4, servicios_count: 1 }
+                ],
+                
+                get professionals() {
+                    return [...new Set(this.services.map(s => s.profesional))].sort();
+                },
+                
+                get filteredServices() {
+                    return this.services.filter(service => {
+                        const matchesSearch = !this.search || 
+                            service.nombre.toLowerCase().includes(this.search.toLowerCase()) ||
+                            service.codigo.toLowerCase().includes(this.search.toLowerCase()) ||
+                            service.profesional.toLowerCase().includes(this.search.toLowerCase());
+                        
+                        const matchesCategory = !this.filterCategory || service.categoria === this.filterCategory;
+                        const matchesProfessional = !this.filterProfessional || service.profesional === this.filterProfessional;
+                        
+                        return matchesSearch && matchesCategory && matchesProfessional;
+                    });
+                },
+                
+                get totalPages() {
+                    return Math.ceil(this.filteredServices.length / this.perPage);
+                },
+                
+                get paginatedServices() {
+                    const start = (this.currentPage - 1) * this.perPage;
+                    return this.filteredServices.slice(start, start + this.perPage);
+                },
+                
+                init() {
+                    this.$watch('search', () => this.currentPage = 1);
+                    this.$watch('filterCategory', () => this.currentPage = 1);
+                    this.$watch('filterProfessional', () => this.currentPage = 1);
+                    this.$watch('perPage', () => this.currentPage = 1);
+                }
+            }
         }
-      }
-    }
-  </script>
-</x-app-layout>
-
-{{-- SOLO para pruebas/local (el proyecto real debe compilar Tailwind) --}}
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    darkMode: 'class',
-    theme: {
-      extend: {
-        colors: {
-          primary: { 50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',300:'#93c5fd',400:'#60a5fa',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8',800:'#1e40af',900:'#1e3a8a' },
-          accent:  { 50:'#f5f3ff',100:'#ede9fe',200:'#ddd6fe',300:'#c4b5fd',400:'#a78bfa',500:'#8b5cf6',600:'#7c3aed',700:'#6d28d9',800:'#5b21b6',900:'#4c1d95' }
-        }
-      }
-    }
-  }
-</script>
+    </script>
+</body>
+</html>
