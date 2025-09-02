@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* (Opcional) helpers mínimos */
+.shadow-soft { @apply shadow-md; } /* si no quieres usar la sombra extendida */
+.shadow-inset { box-shadow: inset 0 1px 3px rgba(0,0,0,0.08); }
