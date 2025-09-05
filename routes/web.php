@@ -1,6 +1,13 @@
 <?php
 
+use App\Http\Controllers\CategoriaController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ServicioController;
+use App\Http\Controllers\CitasController;
+use App\Http\Controllers\EmpleadoController;
+
+
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -17,20 +24,6 @@ Route::middleware([
 });
 
 
-use App\Http\Controllers\CitasController;
-
-Route::middleware(['auth', 'verified'])->prefix('app')->name('app.')->group(function () {
-    Route::get('/',            [CitasController::class, 'dashboard'])->name('dashboard');
-    Route::get('/citas',       [CitasController::class, 'citas'])->name('citas');
-    Route::get('/clientes',    [CitasController::class, 'clients'])->name('clients');
-    Route::get('/ajustes',     [CitasController::class, 'settings'])->name('settings');
-
-
-    Route::get('/servicios', function () {
-        return view('menu/servicios');
-    })->name('servicios');
-});
-
 // routes/web.php
 use App\Http\Controllers\ProfileBusinessLogoController;
 
@@ -40,17 +33,39 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 
-use App\Http\Controllers\ServiceController;
-use App\Http\Controllers\ServiceCategoryController;
+Route::middleware(['auth', 'verified'])
+    ->prefix('app')->name('app.')
+    ->group(function () {
+        Route::get('/',          [CitasController::class, 'dashboard'])->name('dashboard');
+        Route::get('/citas',     [CitasController::class, 'citas'])->name('citas');
+        Route::get('/clientes',  [CitasController::class, 'clients'])->name('clients');
+        Route::get('/ajustes',   [CitasController::class, 'settings'])->name('settings');
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/servicios', [ServiceController::class, 'index'])->name('services.index');
+        // ✅ VISTA (coincide con resources/views/menu/servicios.blade.php)
+        Route::get('/servicios', fn() => view('menu.servicios'))->name('servicios');
 
-    Route::post('/servicios', [ServiceController::class, 'store'])->name('services.store');
-    Route::put('/servicios/{service}', [ServiceController::class, 'update'])->name('services.update');
-    Route::delete('/servicios/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
+        // ✅ JSON servicios (para que Alpine cargue la lista)
+        Route::get('/servicios/lista', [ServicioController::class, 'index'])->name('servicios.index');
+        Route::post('/servicios',             [ServicioController::class, 'store'])->name('servicios.store');
+        Route::put('/servicios/{servicio}',   [ServicioController::class, 'update'])->name('servicios.update');
+        Route::delete('/servicios/{servicio}', [ServicioController::class, 'destroy'])->name('servicios.destroy');
 
-    Route::post('/categorias', [ServiceCategoryController::class, 'store'])->name('categories.store');
-    Route::put('/categorias/{category}', [ServiceCategoryController::class, 'update'])->name('categories.update');
-    Route::delete('/categorias/{category}', [ServiceCategoryController::class, 'destroy'])->name('categories.destroy');
-});
+        // JSON categorías
+        Route::get('/categorias',  [CategoriaController::class, 'index'])->name('categorias.index');
+        Route::post('/categorias', [CategoriaController::class, 'store'])->name('categorias.store');
+        Route::put('/categorias/{categoria}', [CategoriaController::class, 'update'])->name('categorias.update');
+        Route::delete('/categorias/{categoria}', [CategoriaController::class, 'destroy'])->name('categorias.destroy');
+
+
+        //EMPLEADOS
+         // Vista
+        Route::get('/empleados', fn () => view('menu.empleados'))->name('empleados');
+
+        // JSON
+        Route::get('/empleados/lista', [EmpleadoController::class, 'index'])->name('empleados.index');
+        Route::post('/empleados',      [EmpleadoController::class, 'store'])->name('empleados.store');
+        Route::put('/empleados/{empleado}', [EmpleadoController::class, 'update'])->name('empleados.update');
+        Route::delete('/empleados/{empleado}', [EmpleadoController::class, 'destroy'])->name('empleados.destroy');
+        Route::put('/empleados/{empleado}/activar', [EmpleadoController::class, 'restore'])
+    ->name('empleados.restore');
+    });
