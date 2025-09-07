@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 // app/Models/Categoria.php
-class Categoria extends Model
+class categoria extends Model
 {
     protected $fillable = ['usuario_id','nombre','descripcion','color','orden','activo','icono'];
 

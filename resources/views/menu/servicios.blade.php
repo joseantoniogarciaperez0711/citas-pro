@@ -5,7 +5,7 @@
 
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-slate-800 dark:text-slate-100 leading-tight">
+        <h2 class="font-bold text-xl sm:text-2xl text-black">
             {{ __('Servicios / Inventario') }}
         </h2>
     </x-slot>

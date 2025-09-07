@@ -1,7 +1,7 @@
 {{-- resources/views/menu/empleados.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-slate-800 dark:text-slate-100 leading-tight">
+        <h2 class="font-bold text-xl sm:text-2xl text-black">
             {{ __('Empleados') }}
         </h2>
     </x-slot>
@@ -31,27 +31,38 @@
         <body class="bg-gray-50 min-h-screen">
             <div x-data="empData()" x-cloak class="container mx-auto px-3 py-4 max-w-7xl">
                 <!-- Header -->
-                <div class="gradient-bg rounded-xl shadow-lg p-4 sm:p-6 mb-6 text-white">
-                    <div class="flex flex-col space-y-4">
-                        <div class="text-center sm:text-left">
-                            <h1 class="text-2xl sm:text-3xl font-bold mb-2">Empleados</h1>
-                            <p class="text-gray-300 text-sm sm:text-base">Gestión de tu equipo</p>
-                        </div>
-                        <div class="flex justify-center sm:justify-between items-center">
-                            <div class="hidden sm:flex gap-6 text-sm">
-                                <span>Total: <span class="font-semibold" x-text="employees.length"></span></span>
-                                <span>Activos: <span class="font-semibold" x-text="employees.filter(e => !!e.activo).length"></span></span>
-                                <span>Eliminados: <span class="font-semibold" x-text="employees.filter(e => !e.activo).length"></span></span>
-                            </div>
-                            <div class="flex gap-2">
-                                <button @click="newEmployee()"
-                                    class="bg-white text-gray-800 px-4 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all text-sm">
-                                    + Empleado
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<div class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl shadow-md p-5 sm:p-7 mb-6 text-white">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+        <!-- Título y subtítulo -->
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-semibold leading-tight mb-1">Información de Empleados</h1>
+            <p class="text-white/70 text-sm sm:text-base">Gestión de tu equipo</p>
+        </div>
+
+        <!-- Stats y acción -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:gap-6 gap-3 text-sm text-white/80">
+            <!-- Contadores -->
+            <div class="flex justify-center sm:justify-start gap-4 sm:gap-6">
+                <span>Total: <span class="font-semibold" x-text="employees.length"></span></span>
+                <span>Activos: <span class="font-semibold" x-text="employees.filter(e => !!e.activo).length"></span></span>
+                <span>Eliminados: <span class="font-semibold" x-text="employees.filter(e => !e.activo).length"></span></span>
+            </div>
+
+            <!-- Botón de acción -->
+            <div class="flex justify-center sm:justify-end">
+                <button @click="newEmployee()"
+                    class="inline-flex items-center gap-2 bg-white text-gray-800 hover:text-black px-4 py-2 rounded-xl font-medium shadow hover:shadow-md transition-all text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Nuevo Empleado</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
                 <!-- Filtros -->
                 <div class="bg-white rounded-lg shadow-md p-4 mb-6">

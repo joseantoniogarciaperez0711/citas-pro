@@ -12,20 +12,18 @@
 
                 <!-- Navigation Links (desktop) -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    {{-- Dashboard --}}
                     <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
-                    {{-- Citas --}}
-                    <x-nav-link
-                        href="{{ Route::has('appointments.index') ? route('appointments.index') : url('/appointments') }}"
-                        :active="request()->routeIs('appointments.*')">
+                    {{-- Citas (nuevo, funcional a app.citas) --}}
+                    <x-nav-link href="{{ route('app.citas') }}" :active="request()->routeIs('app.citas*')">
                         {{ __('Citas') }}
                     </x-nav-link>
 
                     {{-- Clientes --}}
-                    <x-nav-link href="{{ Route::has('clients.index') ? route('clients.index') : url('/clients') }}"
-                        :active="request()->routeIs('clients.*')">
+                    <x-nav-link href="{{ route('app.clientes') }}" :active="request()->routeIs('app.clientes*')">
                         {{ __('Clientes') }}
                     </x-nav-link>
 
@@ -34,7 +32,7 @@
                         {{ __('Servicios') }}
                     </x-nav-link>
 
-                    {{-- Empleados (nuevo) --}}
+                    {{-- Empleados --}}
                     <x-nav-link href="{{ route('app.empleados') }}" :active="request()->routeIs('app.empleados*')">
                         {{ __('Empleados') }}
                     </x-nav-link>
@@ -144,7 +142,6 @@
                             <!-- Authentication -->
                             <form method="POST" action="{{ route('logout') }}" x-data>
                                 @csrf
-
                                 <x-dropdown-link href="{{ route('logout') }}" @click.prevent="$root.submit();">
                                     {{ __('Log Out') }}
                                 </x-dropdown-link>
@@ -186,10 +183,8 @@
                 </span>
             </x-responsive-nav-link>
 
-            {{-- Citas --}}
-            <x-responsive-nav-link
-                href="{{ Route::has('appointments.index') ? route('appointments.index') : url('/appointments') }}"
-                :active="request()->routeIs('appointments.*')">
+            {{-- Citas (nuevo, funcional a app.citas) --}}
+            <x-responsive-nav-link href="{{ route('app.citas') }}" :active="request()->routeIs('app.citas*')">
                 <span class="flex items-center gap-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-none" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="1.8">
@@ -201,13 +196,12 @@
             </x-responsive-nav-link>
 
             {{-- Clientes --}}
-            <x-responsive-nav-link href="{{ Route::has('clients.index') ? route('clients.index') : url('/clients') }}"
-                :active="request()->routeIs('clients.*')">
+            <x-responsive-nav-link href="{{ route('app.clientes') }}" :active="request()->routeIs('app.clientes*')">
                 <span class="flex items-center gap-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-none" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M17 20v-1a4 4 0 00-4-4H7a4 4 0 00-4 4v1m14-8a4 4 0 10-8 0m12 8v-1a4 4 0 00-3-3.87M15 7a4 4 0 110 8" />
+                              d="M17 20v-1a4 4 0 00-4-4H7a4 4 0 00-4 4v1m14-8a4 4 0 10-8 0m12 8v-1a4 4 0 00-3-3.87M15 7a4 4 0 110 8" />
                     </svg>
                     <span>{{ __('Clientes') }}</span>
                 </span>
@@ -225,7 +219,7 @@
                 </span>
             </x-responsive-nav-link>
 
-            {{-- Empleados (nuevo) --}}
+            {{-- Empleados --}}
             <x-responsive-nav-link href="{{ route('app.empleados') }}" :active="request()->routeIs('app.empleados*')">
                 <span class="flex items-center gap-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-none" viewBox="0 0 24 24"
@@ -236,10 +230,9 @@
                     <span>{{ __('Empleados') }}</span>
                 </span>
             </x-responsive-nav-link>
-
         </div>
 
-        <!-- Responsive Settings Options (igual que lo tenías) -->
+        <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="flex items-center px-4">
                 @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
@@ -293,12 +286,14 @@
 
                     @if (Auth::user()->allTeams()->count() > 1)
                         <div class="border-t border-gray-200"></div>
+
                         <div class="block px-4 py-2 text-xs text-gray-400">
                             {{ __('Switch Teams') }}
                         </div>
-                        @foreach (Auth::user()->allTeams() as $team)
-                            <x-switchable-team :team="$team" component="responsive-nav-link" />
-                        @endforeach
+
+                            @foreach (Auth::user()->allTeams() as $team)
+                                <x-switchable-team :team="$team" component="responsive-nav-link" />
+                            @endforeach
                     @endif
                 @endif
             </div>
