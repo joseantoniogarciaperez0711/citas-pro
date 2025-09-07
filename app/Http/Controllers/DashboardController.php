@@ -35,8 +35,7 @@ class DashboardController extends Controller
         4 => ['open' => '08:00', 'close' => '18:00'],
         5 => ['open' => '08:00', 'close' => '18:00'],
         6 => ['open' => '09:00', 'close' => '14:00'], // Sábado
-        0 => ['open' => '09:00', 'close' => '14:00'],  // Domingo abierto
-                                    // Domingo cerrado
+        0 => ['open' => '09:00', 'close' => '14:00'], // Domingo
     ];
 
     public function view()
@@ -76,24 +75,33 @@ class DashboardController extends Controller
             ->where('usuario_id', $userId)
             ->groupBy('cita_id');
 
+        // >>> ÚNICA RESTRICCIÓN NUEVA PARA KPIs/INGRESOS <<<
+        // Solo considerar citas TERMINADAS para KPIs/Ingresos/Descuentos/Serie
+        $ESTADOS_INGRESO = ['terminada'];
+
         $citasPeriodo = DB::table('citas as ci')
             ->leftJoinSub($lines, 'li', fn($j) => $j->on('li.cita_id', '=', 'ci.id'))
             ->where('ci.usuario_id', $userId)
             ->whereBetween('ci.hora_inicio', [$from->toDateTimeString(), $to->toDateTimeString()])
+            ->whereIn('ci.estado', $ESTADOS_INGRESO) // ← ahora solo 'terminada'
             ->select([
-                'ci.id','ci.cliente_id','ci.hora_inicio','ci.hora_fin',
+                'ci.id',
+                'ci.cliente_id',
+                'ci.hora_inicio',
+                'ci.hora_fin',
                 DB::raw('COALESCE(li.base,0) as base'),
                 DB::raw('COALESCE(li.desc_linea,0) as desc_linea'),
                 DB::raw('GREATEST(0, COALESCE(li.base,0) - COALESCE(li.desc_linea,0)) as subtotal'),
                 DB::raw('COALESCE(ci.descuento,0) as desc_orden'),
                 DB::raw('LEAST(GREATEST(0, COALESCE(li.base,0) - COALESCE(li.desc_linea,0)),
-                               COALESCE(ci.descuento,0)) as desc_orden_aplicado'),
+                       COALESCE(ci.descuento,0)) as desc_orden_aplicado'),
                 DB::raw('GREATEST(0,
-                      GREATEST(0, COALESCE(li.base,0) - COALESCE(li.desc_linea,0))
-                      - LEAST(GREATEST(0, COALESCE(li.base,0) - COALESCE(li.desc_linea,0)),
-                              COALESCE(ci.descuento,0))) as neto'),
+              GREATEST(0, COALESCE(li.base,0) - COALESCE(li.desc_linea,0))
+              - LEAST(GREATEST(0, COALESCE(li.base,0) - COALESCE(li.desc_linea,0)),
+                      COALESCE(ci.descuento,0))) as neto'),
             ])
             ->get();
+
 
         // Totales del período
         $kpi = [
@@ -110,20 +118,27 @@ class DashboardController extends Controller
         // Series por día (ingresos/desc) en el período
         $serie = $this->bucketByDay($citasPeriodo, $from, $to);
 
-        // Próximas de hoy (ordenadas)
+        // Próximas de hoy (ordenadas) ------------- AQUI se incluye 'estado'
         [$todayStart, $todayEnd] = [$now->copy()->startOfDay(), $now->copy()->endOfDay()];
         $hoy = DB::table('citas as ci')
             ->leftJoin('clientes as cl', 'cl.id', '=', 'ci.cliente_id')
             ->where('ci.usuario_id', $userId)
             ->whereBetween('ci.hora_inicio', [$todayStart->toDateTimeString(), $todayEnd->toDateTimeString()])
             ->orderBy('ci.hora_inicio')
-            ->select('ci.id','ci.hora_inicio','ci.hora_fin','cl.nombre as cliente_nombre')
+            ->select(
+                'ci.id',
+                'ci.hora_inicio',
+                'ci.hora_fin',
+                'ci.estado', // 👈 se mantiene
+                'cl.nombre as cliente_nombre'
+            )
             ->get()
             ->map(function ($r) {
                 return [
                     'id'           => (int) $r->id,
                     'hora_inicio'  => (string) $r->hora_inicio,
                     'hora_fin'     => (string) $r->hora_fin,
+                    'estado'       => (string) $r->estado, // 👈 se mantiene
                     'cliente'      => ['nombre' => $r->cliente_nombre ?: 'Cliente'],
                 ];
             })
@@ -143,14 +158,21 @@ class DashboardController extends Controller
             ->where('ci.usuario_id', $userId)
             ->whereBetween('ci.hora_inicio', [$semStart->toDateTimeString(), $semEnd->toDateTimeString()])
             ->orderBy('ci.hora_inicio')
-            ->select('ci.id','ci.hora_inicio','ci.hora_fin','cl.id as cliente_id','cl.nombre as cliente_nombre')
+            ->select(
+                'ci.id',
+                'ci.hora_inicio',
+                'ci.hora_fin',
+                'ci.estado', // 👈 disponible si lo quieres usar en el grid
+                'cl.id as cliente_id',
+                'cl.nombre as cliente_nombre'
+            )
             ->get();
 
         // minutos bloqueados y capacidad semanal
         $bookedMinutes = $this->bookedMinutes($weekCitas, $userId);
         $capacityMinutes = $this->weekCapacityMinutes($semStart);
 
-        // Ocupación del período seleccionado (si range=week la verás igual que gauge)
+        // Ocupación del período seleccionado
         $ocupacionPct = $capacityMinutes > 0 ? (int) round(($bookedMinutes / $capacityMinutes) * 100) : 0;
 
         return response()->json([
@@ -167,28 +189,34 @@ class DashboardController extends Controller
                 'desc_total'      => $kpi['descTotal'],
                 'neto'            => $kpi['neto'],
                 'citas_hoy'       => $kpi['citasHoy'],
-                'clientes_periodo'=> $kpi['clientesPeriodo'],
+                'clientes_periodo' => $kpi['clientesPeriodo'],
                 'ocupacion_pct'   => $ocupacionPct,
             ],
             'series' => [
                 'ingresos_por_dia' => $serie, // [{date, bruto, descuentos, neto}]
             ],
-            'hoy' => $hoy, // [{id, hora_inicio, hora_fin, cliente:{nombre}}]
+            // hoy incluye estado
+            'hoy' => $hoy, // [{id, hora_inicio, hora_fin, estado, cliente:{nombre}}]
             'semana' => [
                 'start'            => $semStart->toDateString(),
                 'end'              => $semEnd->toDateString(),
                 'capacity_minutes' => $capacityMinutes,
                 'booked_minutes'   => $bookedMinutes,
-                // eventos “simples”: el frontend puede posicionarlos en el grid
                 'eventos'          => $weekCitas->map(fn($c) => [
                     'id'          => (int) $c->id,
                     'hora_inicio' => (string) $c->hora_inicio,
                     'hora_fin'    => (string) $c->hora_fin,
-                    'cliente'     => ['id' => (int) $c->cliente_id, 'nombre' => $c->cliente_nombre ?: 'Cliente'],
+                    'estado'      => (string) $c->estado, // 👈 se mantiene
+                    'cliente'     => [
+                        'id'     => (int) $c->cliente_id,
+                        'nombre' => $c->cliente_nombre ?: 'Cliente'
+                    ],
                 ])->values(),
             ],
         ], 200);
     }
+
+
 
     /* ----------------- Helpers ----------------- */
 
@@ -270,13 +298,13 @@ class DashboardController extends Controller
     {
         $sum = 0;
         // Lunes (1) a Domingo (0) según $businessHours
-        for ($i=0; $i<7; $i++) {
+        for ($i = 0; $i < 7; $i++) {
             $dow = ($weekStart->copy()->addDays($i)->dayOfWeek); // 0..6
             $bh = $this->businessHours[$dow] ?? null;
             if (!$bh) continue;
-            [$oh,$om] = array_map('intval', explode(':', $bh['open']));
-            [$ch,$cm] = array_map('intval', explode(':', $bh['close']));
-            $sum += (($ch*60 + $cm) - ($oh*60 + $om));
+            [$oh, $om] = array_map('intval', explode(':', $bh['open']));
+            [$ch, $cm] = array_map('intval', explode(':', $bh['close']));
+            $sum += (($ch * 60 + $cm) - ($oh * 60 + $om));
         }
         return max(0, $sum);
     }

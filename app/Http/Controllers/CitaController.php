@@ -247,4 +247,74 @@ class CitaController extends Controller
 
         return response()->json(['citas' => $out], 200);
     }
+
+    public function update(Request $request, \App\Models\Cita $cita)
+    {
+        $userId = \Illuminate\Support\Facades\Auth::id();
+        if ($cita->usuario_id !== $userId) {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
+
+        $data = $request->validate([
+            'fecha'       => ['nullable', 'date'],
+            'hora_inicio' => ['nullable', 'date_format:H:i'],
+            'estado'      => ['nullable', 'string', 'in:pendiente,reprogramada,terminada,cancelada'],
+            'notas'       => ['nullable', 'string'],
+        ]);
+
+        // Si reprograma (fecha/hora), recalcula hora_fin basado en items
+        if (!empty($data['fecha']) || !empty($data['hora_inicio'])) {
+            // Combinar: si falta uno, usa el valor actual
+            $fecha = !empty($data['fecha'])
+                ? \Carbon\Carbon::createFromFormat('Y-m-d', $data['fecha'], 'America/Mexico_City')
+                : \Carbon\Carbon::parse($cita->hora_inicio, 'America/Mexico_City');
+
+            $horaStr = !empty($data['hora_inicio'])
+                ? $data['hora_inicio']
+                : \Carbon\Carbon::parse($cita->hora_inicio, 'America/Mexico_City')->isoFormat('HH:mm');
+
+            $start = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $fecha->toDateString() . ' ' . $horaStr, 'America/Mexico_City');
+
+            // Suma de duraciones*cantidad desde cita_servicio
+            $mins = \Illuminate\Support\Facades\DB::table('cita_servicio')
+                ->where('usuario_id', $userId)
+                ->where('cita_id', $cita->id)
+                ->selectRaw('COALESCE(SUM(duracion_minutos_snapshot * GREATEST(1,cantidad)),0) as mins')
+                ->value('mins');
+
+            $end = (clone $start)->addMinutes((int)$mins);
+
+            $cita->fecha = $start->copy()->startOfDay();
+            $cita->hora_inicio = $start;
+            $cita->hora_fin = $end;
+        }
+
+        if (!empty($data['estado'])) {
+            $cita->estado = $data['estado'];
+        }
+        if (array_key_exists('notas', $data)) {
+            $cita->notas = $data['notas'];
+        }
+
+        $cita->save();
+
+        return response()->json(['message' => 'Cita actualizada', 'cita' => $cita->fresh('cliente', 'items')], 200);
+    }
+
+    public function estado(Request $request, \App\Models\Cita $cita)
+    {
+        $userId = \Illuminate\Support\Facades\Auth::id();
+        if ($cita->usuario_id !== $userId) {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
+
+        $data = $request->validate([
+            'estado' => ['required', 'string', 'in:pendiente,terminada,cancelada,reprogramada'],
+        ]);
+
+        $cita->estado = $data['estado'];
+        $cita->save();
+
+        return response()->json(['message' => 'Estado actualizado', 'cita' => $cita], 200);
+    }
 }

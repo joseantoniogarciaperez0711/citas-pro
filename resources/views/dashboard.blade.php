@@ -445,6 +445,76 @@
                     transform: rotate(360deg);
                 }
             }
+
+
+            /* Base */
+            .status-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 0.25rem 0.5rem;
+                /* 4px 8px */
+                border-radius: 9999px;
+                font-size: 0.75rem;
+                /* text-xs */
+                font-weight: 700;
+                /* font-bold */
+                line-height: 1;
+                border: 1px solid transparent;
+                white-space: nowrap;
+            }
+
+            /* Puntito a la izquierda (opcional) */
+            .status-badge::before {
+                content: "";
+                width: 6px;
+                height: 6px;
+                border-radius: 9999px;
+                background: currentColor;
+                opacity: .9;
+            }
+
+            /* ------- Estados ------- */
+
+            /* pendiente */
+            .status-pendiente {
+                color: #fbbf24;
+                /* amber-400 */
+                background: rgba(251, 191, 36, 0.10);
+                border-color: rgba(251, 191, 36, 0.25);
+            }
+
+            /* programada */
+            .status-programada {
+                color: #60a5fa;
+                /* blue-400 */
+                background: rgba(96, 165, 250, 0.12);
+                border-color: rgba(96, 165, 250, 0.28);
+            }
+
+            /* terminada */
+            .status-terminada {
+                color: #34d399;
+                /* emerald-400 */
+                background: rgba(52, 211, 153, 0.12);
+                border-color: rgba(52, 211, 153, 0.28);
+            }
+
+            /* cancelada */
+            .status-cancelada {
+                color: #f87171;
+                /* red-400 */
+                background: rgba(248, 113, 113, 0.12);
+                border-color: rgba(248, 113, 113, 0.3);
+            }
+
+            /* reprogramada */
+            .status-reprogramada {
+                color: #f59e0b;
+                /* amber-500 */
+                background: rgba(245, 158, 11, 0.12);
+                border-color: rgba(245, 158, 11, 0.28);
+            }
         </style>
 
         <div x-data="dashboard()" x-cloak
@@ -612,20 +682,62 @@
                         <template x-for="c in todayList" :key="c.id">
                             <div
                                 class="bg-gradient-to-r from-blue-900/50 to-indigo-900/50 border border-blue-800/50 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:border-blue-700/70 transition-all duration-200 slide-in">
-                                <div class="flex items-center justify-between">
+
+                                <!-- Layout principal: stack en móvil, flex en desktop -->
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+
+                                    <!-- Información del cliente - ocupa todo el ancho en móvil -->
                                     <div class="flex-1 min-w-0">
-                                        <div class="font-semibold text-white mb-1 truncate"
-                                            x-text="c.cliente?.nombre || 'Cliente'"></div>
-                                        <div class="text-sm text-gray-300 flex items-center gap-2">
-                                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
+                                        <!-- Header con cliente y estado -->
+                                        <div class="flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-3 mb-2">
+                                            <h3 class="font-bold text-white text-base sm:text-lg leading-tight break-words"
+                                                x-text="c.cliente?.nombre || 'Cliente'"></h3>
+                                            <span class="status-badge self-start xs:self-center flex-shrink-0"
+                                                :class="'status-' + (c.estado || '').toLowerCase()"
+                                                x-text="(c.estado || '').charAt(0).toUpperCase() + (c.estado || '').slice(1)"></span>
+                                        </div>
+
+                                        <!-- Horario -->
+                                        <div class="text-sm sm:text-base text-gray-300 flex items-center gap-2">
+                                            <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                             </svg>
-                                            <span x-text="rangeHour(c.hora_inicio, c.hora_fin)"></span>
+                                            <span class="font-medium"
+                                                x-text="rangeHour(c.hora_inicio, c.hora_fin)"></span>
                                         </div>
                                     </div>
-                                    <span class="status-badge status-programmed">Programada</span>
+
+                                    <!-- Botones de acción -->
+                                    <div
+                                        class="flex flex-row sm:flex-col gap-2 justify-stretch sm:justify-start sm:flex-shrink-0">
+                                        <!-- Botón Terminado -->
+                                        <button
+                                            class="bg-green-600 hover:bg-green-700 text-white px-2.5 py-2 rounded-md text-xs font-medium transition-colors flex items-center justify-center gap-1.5 min-h-[36px] min-w-[84px] disabled:opacity-60 disabled:cursor-not-allowed"
+                                            @click="markDone(c.id)"
+                                            :disabled="['terminada', 'cancelada'].includes((c.estado || '').toLowerCase())">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            <span>Terminado</span>
+                                        </button>
+
+
+                                        <button
+                                            class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-2 rounded-md text-xs font-medium transition-colors flex items-center justify-center gap-1.5 min-h-[36px] min-w-[84px]"
+                                            @click="openModal(c.id)">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                                </path>
+                                            </svg>
+                                            <span>Revisar</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </template>
@@ -751,7 +863,16 @@
                                     :key="ev.id">
                                     <div class="appointment-event absolute"
                                         :style="`top:${ev.relativeTop}px; height:${ev.height}px; left: 68px; right: 8px;`">
-                                        <div class="font-semibold truncate" x-text="ev.cliente"></div>
+
+                                        <div class="flex items-center gap-2">
+                                            <div class="font-semibold truncate" x-text="ev.cliente"></div>
+                                            <span class="status-badge"
+                                                :class="'status-' + (ev.estado || '').toLowerCase()"
+                                                x-text="(ev.estado || '').charAt(0).toUpperCase() + (ev.estado || '').slice(1)">
+                                            </span>
+                                        </div>
+
+
                                         <div class="text-xs opacity-90 flex items-center gap-1 mt-1">
                                             <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -774,12 +895,23 @@
                                 <template x-for="ev in week.eventos" :key="ev.id">
                                     <div
                                         class="bg-gradient-to-r from-blue-900/50 to-indigo-900/50 border border-blue-800/50 rounded-lg p-3">
+                                        
+
+
                                         <div class="flex justify-between items-start mb-2">
-                                            <div class="font-semibold text-white"
-                                                x-text="ev.cliente?.nombre || 'Cliente'"></div>
+                                            <div class="flex items-center gap-2">
+                                                <div class="font-semibold text-white"
+                                                    x-text="ev.cliente?.nombre || 'Cliente'"></div>
+                                                <span class="status-badge"
+                                                    :class="'status-' + (ev.estado || '').toLowerCase()"
+                                                    x-text="(ev.estado || '').charAt(0).toUpperCase() + (ev.estado || '').slice(1)">
+                                                </span>
+                                            </div>
                                             <div class="text-xs text-gray-400"
                                                 x-text="formatMobileDate(ev.hora_inicio)"></div>
                                         </div>
+
+
                                         <div class="text-sm text-gray-300 flex items-center gap-2">
                                             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -787,6 +919,33 @@
                                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                             </svg>
                                             <span x-text="rangeHour(ev.hora_inicio, ev.hora_fin)"></span>
+                                        </div>
+
+
+                                        <div class="mt-3 flex gap-1.5">
+                                            <button
+                                                class="bg-green-600 hover:bg-green-700 text-white px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors inline-flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+                                                @click.stop="markDone(ev.id)"
+                                                :disabled="['terminada', 'cancelada'].includes((ev.estado || '').toLowerCase())">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                <span>Terminado</span>
+                                            </button>
+
+                                            <button
+                                                class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors inline-flex items-center justify-center gap-1.5"
+                                                @click.stop="openModal(ev.id)">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                                <span>Revisar</span>
+                                            </button>
                                         </div>
                                     </div>
                                 </template>
@@ -846,7 +1005,15 @@
                                             :key="ev.id">
                                             <div class="appointment-event"
                                                 :style="`top:${ev.top}px; height:${ev.height}px;`">
-                                                <div class="font-semibold truncate" x-text="ev.cliente"></div>
+
+                                                <div class="flex items-center gap-2">
+                                                    <div class="font-semibold truncate" x-text="ev.cliente"></div>
+                                                    <span class="status-badge"
+                                                        :class="'status-' + (ev.estado || '').toLowerCase()"
+                                                        x-text="(ev.estado || '').charAt(0).toUpperCase() + (ev.estado || '').slice(1)">
+                                                    </span>
+                                                </div>
+
                                                 <div class="text-xs opacity-90 flex items-center gap-1 mt-1">
                                                     <svg class="w-3 h-3" fill="none" stroke="currentColor"
                                                         viewBox="0 0 24 24">
@@ -855,6 +1022,33 @@
                                                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                     </svg>
                                                     <span x-text="rangeHour(ev.hora_inicio, ev.hora_fin)"></span>
+                                                </div>
+
+                                                <div class="mt-2 flex gap-1.5">
+                                                    <button
+                                                        class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-md text-[10px] font-semibold transition-colors inline-flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+                                                        @click.stop="markDone(ev.id)"
+                                                        :disabled="['terminada', 'cancelada'].includes((ev.estado || '')
+                                                            .toLowerCase())">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                        </svg>
+                                                        Terminado
+                                                    </button>
+
+                                                    <button
+                                                        class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-md text-[10px] font-semibold transition-colors inline-flex items-center gap-1.5"
+                                                        @click.stop="openModal(ev.id)">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                        </svg>
+                                                        Revisar
+                                                    </button>
                                                 </div>
                                             </div>
                                         </template>
@@ -874,6 +1068,417 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Main Modal for Appointment Details -->
+            <div x-cloak x-show="showModal" x-transition.opacity
+                class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                <div class="absolute inset-0 bg-black/70" @click="closeModal()"></div>
+                <div class="relative w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-2xl p-4 sm:p-6">
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div>
+                            <h4 class="text-white font-semibold text-lg" x-text="modal.title"></h4>
+                            <p class="text-gray-400 text-sm"
+                                x-text="rangeHour(citaSel?.hora_inicio, citaSel?.hora_fin)"></p>
+
+                        </div>
+                        <button class="text-gray-400 hover:text-white" @click="closeModal()">✕</button>
+                    </div>
+
+                    <!-- Detalle (mejorado) -->
+                    <div class="max-h-[60vh] overflow-auto pr-1">
+                        <!-- Contenido principal: izquierda servicios / derecha totales -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                            <!-- Columna izquierda: Servicios -->
+                            <div class="lg:col-span-2 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <h5 class="text-gray-200 font-semibold">Servicios</h5>
+                                    <span class="text-xs text-gray-400"
+                                        x-text="'Servicios: ' + (citaSel?.items?.length || 0)"></span>
+                                </div>
+                                <!-- Lista de servicios -->
+                                <template x-if="(citaSel?.items || []).length">
+                                    <div
+                                        class="divide-y divide-slate-700/70 rounded-lg overflow-hidden border border-slate-700/70">
+                                        <template x-for="it in (citaSel?.items || [])" :key="it.id">
+                                            <div class="bg-slate-800/40 px-3 sm:px-4 py-2.5">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="min-w-0 flex-1">
+                                                        <div class="flex flex-wrap items-center gap-2">
+                                                            <span class="font-medium text-gray-100 truncate"
+                                                                x-text="it.nombre_servicio_snapshot"></span>
+                                                            <!-- Duración -->
+                                                            <span
+                                                                class="text-[11px] sm:text-xs px-2 py-0.5 rounded-full bg-indigo-900/30 border border-indigo-600/30 text-indigo-200">
+                                                                <span
+                                                                    x-text="(it.duracion_minutos_snapshot || 0) + ' min'"></span>
+                                                            </span>
+                                                            <!-- Cantidad -->
+                                                            <span
+                                                                class="text-[11px] sm:text-xs px-2 py-0.5 rounded-full bg-slate-900/40 border border-slate-600/40 text-gray-300">
+                                                                x<span x-text="Math.max(1, it.cantidad || 1)"></span>
+                                                            </span>
+                                                            <!-- Descuento por línea -->
+                                                            <template x-if="(it.descuento || 0) > 0">
+                                                                <span
+                                                                    class="text-[11px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-900/30 border border-amber-600/40 text-amber-300">
+                                                                    - <span x-text="money(it.descuento || 0)"></span>
+                                                                </span>
+                                                            </template>
+                                                        </div>
+                                                        <!-- Precio unitario -->
+                                                        <div class="text-xs text-gray-400 mt-1">
+                                                            <span>Precio: </span>
+                                                            <span
+                                                                x-text="money(it.precio_servicio_snapshot || 0)"></span>
+                                                            <span class="opacity-60"> c/u</span>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Total de la línea -->
+                                                    <div class="text-right">
+                                                        <div class="text-xs text-gray-400">servicio</div>
+                                                        <div class="text-sm font-semibold text-gray-100"
+                                                            x-text="money((it.precio_servicio_snapshot || 0)*Math.max(1, it.cantidad || 1) - (it.descuento || 0))">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                                <!-- Sin servicios -->
+                                <template x-if="!(citaSel?.items || []).length">
+                                    <div
+                                        class="text-sm text-gray-400 bg-slate-800/40 border border-slate-700 rounded-lg p-3">
+                                        No hay servicios capturados para esta cita.
+                                    </div>
+                                </template>
+                            </div>
+                            <!-- Columna derecha: Totales claros -->
+                            <div class="lg:col-span-1">
+                                <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-3 sm:p-4">
+                                    <h5 class="text-gray-200 font-semibold mb-3">Resumen de cobro</h5>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-300">Bruto</span>
+                                            <span class="font-semibold text-gray-100"
+                                                x-text="money(citaSel?.totales?.bruto || 0)"></span>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-300">Desc. x servicios</span>
+                                            <span class="font-semibold text-amber-300"
+                                                x-text="money(citaSel?.totales?.desc_lineas || 0)"></span>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-300">Subtotal</span>
+                                            <span class="font-semibold text-gray-100"
+                                                x-text="money(citaSel?.totales?.subtotal || 0)"></span>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-300">Desc. general</span>
+                                            <span class="font-semibold text-amber-300"
+                                                x-text="money(citaSel?.totales?.desc_orden || 0)"></span>
+                                        </div>
+                                        <div class="flex items-center justify-between pt-2 border-t border-slate-700">
+                                            <span class="text-gray-300">Descuentos</span>
+                                            <span class="font-semibold text-amber-300"
+                                                x-text="money((citaSel?.totales?.desc_lineas || 0) + (citaSel?.totales?.desc_orden || 0))"></span>
+                                        </div>
+                                        <div class="flex items-center justify-between mt-2">
+                                            <span class="text-gray-300">Total</span>
+                                            <span class="text-lg font-bold text-emerald-400"
+                                                x-text="money(citaSel?.totales?.neto || 0)"></span>
+                                        </div>
+                                    </div>
+                                    <!-- Nota opcional -->
+                                    <template x-if="(citaSel?.notas || '').trim().length">
+                                        <div
+                                            class="mt-4 text-xs text-gray-300/90 bg-slate-900/50 border border-slate-700/60 rounded-lg p-3">
+                                            <div class="font-medium text-gray-200 mb-1">Notas</div>
+                                            <div x-text="citaSel?.notas"></div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acciones principales -->
+                    <div class="mt-6 flex flex-wrap items-center gap-2">
+                        <button class="px-3 py-1.5 rounded-lg bg-rose-600/90 hover:bg-rose-600 text-white text-sm"
+                            @click="askCancel(citaSel)" :disabled="!citaSel || citaSel.estado === 'cancelada'">
+                            Cancelar cita
+                        </button>
+                        <button class="px-2.5 py-1.5 rounded-md bg-amber-600/90 hover:bg-amber-600 text-white text-xs"
+                            @click="openReprogModal()" :disabled="!citaSel">
+                            Reprogramar
+                        </button>
+                        <div class="ml-auto">
+                            <button class="px-2.5 py-1.5 rounded-md bg-slate-700 hover:bg-slate-600 text-white text-xs"
+                                @click="closeModal()">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile-Optimized Rescheduling Modal with Clean White Design -->
+            <div x-cloak x-show="showReprogModal" x-transition.opacity
+                class="fixed inset-0 z-[110] flex items-end sm:items-center justify-center px-0 sm:px-4">
+                <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeReprogModal()"></div>
+
+                <!-- Mobile: Bottom sheet / Desktop: Centered modal -->
+                <div
+                    class="relative w-full sm:max-w-lg bg-white sm:rounded-2xl rounded-t-3xl shadow-2xl max-h-[85vh] overflow-hidden
+                border border-gray-100 transform transition-all duration-300 ease-out">
+
+                    <!-- Mobile drag indicator -->
+                    <div class="sm:hidden flex justify-center pt-3 pb-1">
+                        <div class="w-8 h-1 bg-gray-300 rounded-full"></div>
+                    </div>
+
+                    <!-- Header Enhanced -->
+                    <div class="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-200 px-6 py-5">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1 pr-4">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="text-xl font-bold text-gray-900">Reprogramar cita</h3>
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                        Reagendar
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-600" x-text="citaSel?.cliente?.nombre || 'Cliente'"></p>
+
+                                <!-- Current Appointment Info -->
+                                <div class="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-700">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                            </path>
+                                        </svg>
+                                        <span>Actual: <strong
+                                                x-text="fmt(citaSel?.hora_inicio) + ' - ' + fmt(citaSel?.hora_fin)"></strong></span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span x-text="totalMinsCita(citaSel) + ' minutos'"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="p-2 hover:bg-gray-100 rounded-xl transition-colors group"
+                                @click="closeReprogModal()">
+                                <svg class="w-5 h-5 text-gray-400 group-hover:text-gray-600" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Content area -->
+                    <div class="overflow-y-auto px-6 pb-6">
+
+                        <!-- New Schedule Section -->
+                        <div class="py-6">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-5 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                Nuevo horario
+                            </h4>
+
+                            <div
+                                class="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-6">
+                                <div class="space-y-5">
+                                    <!-- Date Input -->
+                                    <div>
+                                        <label
+                                            class="block text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                                            <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                </path>
+                                            </svg>
+                                            Nueva fecha
+                                        </label>
+                                        <input type="date"
+                                            class="w-full h-12 border border-gray-300 rounded-xl px-4 text-gray-900 text-base
+                                          focus:ring-2 focus:ring-orange-500 focus:border-orange-500 
+                                          transition-all duration-200 bg-white shadow-sm"
+                                            x-model="reprog.fecha" @change="recalcEnd()">
+                                    </div>
+
+                                    <!-- Time Inputs -->
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                                                <svg class="w-4 h-4 text-green-500" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                Hora de inicio
+                                            </label>
+                                            <input type="time"
+                                                class="w-full h-12 border border-gray-300 rounded-xl px-4 text-gray-900 text-base
+                                              focus:ring-2 focus:ring-orange-500 focus:border-orange-500 
+                                              transition-all duration-200 bg-white shadow-sm"
+                                                x-model="reprog.hora_inicio" @change="recalcEnd()">
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                                                <svg class="w-4 h-4 text-purple-500" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                Hora final
+                                                <span
+                                                    class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-medium">
+                                                    automática
+                                                </span>
+                                            </label>
+                                            <input type="time"
+                                                class="w-full h-12 border border-gray-200 bg-gray-50 rounded-xl px-4 text-gray-600 text-base cursor-not-allowed shadow-sm"
+                                                :value="reprog.hora_fin" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Preview Section -->
+                            <template x-if="reprog.fecha && reprog.hora_inicio && reprog.hora_fin">
+                                <div
+                                    class="mt-6 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-5">
+                                    <h5 class="text-base font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        Vista previa del cambio
+                                    </h5>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                                        <div class="bg-white rounded-lg p-3 border border-blue-200">
+                                            <div
+                                                class="text-xs font-medium text-blue-700 uppercase tracking-wide mb-1">
+                                                Horario actual</div>
+                                            <div class="font-semibold text-gray-900"
+                                                x-text="fmt(citaSel?.hora_inicio) + ' – ' + fmt(citaSel?.hora_fin)">
+                                            </div>
+                                        </div>
+                                        <div class="bg-white rounded-lg p-3 border border-green-200">
+                                            <div
+                                                class="text-xs font-medium text-green-700 uppercase tracking-wide mb-1">
+                                                Nuevo horario</div>
+                                            <div class="font-semibold text-gray-900">
+                                                <span x-text="formatDate(reprog.fecha)"></span><br>
+                                                <span x-text="reprog.hora_inicio + ' – ' + reprog.hora_fin"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Actions - Sticky bottom with enhanced design -->
+                    <div
+                        class="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-end sm:gap-3">
+                        <div class="flex flex-col sm:flex-row gap-3 sm:gap-2 w-full sm:w-auto">
+                            <button
+                                class="order-2 sm:order-1 w-full sm:w-auto px-5 py-3 sm:py-2.5 
+                               bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-xl sm:rounded-lg 
+                               border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 
+                               focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 text-base sm:text-sm
+                               disabled:opacity-50 disabled:cursor-not-allowed"
+                                @click="closeReprogModal()" :disabled="reprogLoading">
+                                Cancelar
+                            </button>
+                            <button
+                                class="order-1 sm:order-2 w-full sm:w-auto px-5 py-3 sm:py-2.5 
+                               bg-orange-600 hover:bg-orange-500 text-white font-semibold rounded-xl sm:rounded-lg 
+                               transition-all duration-200 text-base sm:text-sm
+                               focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2
+                               disabled:bg-orange-300 disabled:cursor-not-allowed
+                               flex items-center justify-center gap-2"
+                                @click="submitReprog()"
+                                :disabled="!reprog.fecha || !reprog.hora_inicio || reprogLoading">
+                                <svg x-show="reprogLoading" class="w-4 h-4 animate-spin" fill="none"
+                                    viewBox="0 0 24 24">
+                                    <circle class="opacity-30" cx="12" cy="12" r="10"
+                                        stroke="currentColor" stroke-width="4" />
+                                    <path class="opacity-90" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                                </svg>
+                                <svg x-show="!reprogLoading" class="w-4 h-4" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                <span x-show="!reprogLoading">Confirmar reprogramación</span>
+                                <span x-show="reprogLoading">Guardando cambios...</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Confirmation Modal (Generic) -->
+            <div x-cloak x-show="confirm.open" x-transition.opacity
+                class="fixed inset-0 z-[120] flex items-center justify-center p-4">
+                <div class="absolute inset-0 bg-black/70" @click="closeConfirm()"></div>
+                <div class="relative w-full max-w-md bg-slate-900 border border-slate-700 rounded-2xl p-5 shadow-2xl">
+                    <div class="flex items-start justify-between gap-4 mb-3">
+                        <div>
+                            <h4 class="text-white font-semibold text-lg" x-text="confirm.title"></h4>
+                            <p class="text-gray-400 text-sm mt-0.5" x-text="confirm.message"></p>
+                        </div>
+                        <button class="text-gray-400 hover:text-white" @click="closeConfirm()">✕</button>
+                    </div>
+                    <!-- Opcional: detalles resumidos de la cita -->
+                    <template x-if="confirm.meta">
+                        <div class="text-sm text-gray-300 bg-slate-800/60 border border-slate-700 rounded-lg p-3 mb-4">
+                            <div class="font-medium" x-text="confirm.meta.cliente"></div>
+                            <div class="text-gray-400" x-text="confirm.meta.horario"></div>
+                        </div>
+                    </template>
+                    <div class="flex items-center justify-end gap-2">
+                        <button class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-sm"
+                            @click="closeConfirm()" :disabled="confirm.loading">
+                            No, volver
+                        </button>
+                        <button
+                            class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-sm inline-flex items-center gap-2"
+                            @click="doConfirm()" :disabled="confirm.loading">
+                            <svg x-show="confirm.loading" class="w-4 h-4 animate-spin" fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-30" cx="12" cy="12" r="10"
+                                    stroke="currentColor" stroke-width="4" />
+                                <path class="opacity-90" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                            </svg>
+                            <span x-text="confirm.cta || 'Sí, confirmar'"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
 
         </div>
 
@@ -905,7 +1510,78 @@
                     },
                     loading: false,
 
-                    /* UI helpers - MANTIENEN EXACTAMENTE LA FUNCIONALIDAD ORIGINAL */
+                    /* ====== ESTADOS Y LABELS ====== */
+                    statusInfo(st) {
+                        const key = String(st || '').toLowerCase();
+                        const map = {
+                            pendiente: {
+                                cls: 'status-pending',
+                                label: 'Pendiente'
+                            },
+                            programada: {
+                                cls: 'status-programmed',
+                                label: 'Programada'
+                            },
+                            reprogramada: {
+                                cls: 'status-reprog',
+                                label: 'Reprogramada'
+                            },
+                            terminada: {
+                                cls: 'status-done',
+                                label: 'Terminada'
+                            },
+                            cancelada: {
+                                cls: 'status-cancelled',
+                                label: 'Cancelada'
+                            },
+                        };
+                        return map[key] || {
+                            cls: 'status-pending',
+                            label: (st || 'Pendiente')
+                        };
+                    },
+
+                    /* ====== MODAL DE CONFIRMACIÓN (BONITO) ====== */
+                    confirm: {
+                        open: false,
+                        title: '',
+                        message: '',
+                        cta: 'Confirmar',
+                        loading: false,
+                        onAccept: null,
+                        meta: null
+                    },
+                    openConfirm(opts = {}) {
+                        this.confirm.title = opts.title || '¿Confirmar acción?';
+                        this.confirm.message = opts.message || 'Esta acción no se puede deshacer.';
+                        this.confirm.cta = opts.cta || 'Confirmar';
+                        this.confirm.onAccept = typeof opts.onAccept === 'function' ? opts.onAccept : null;
+                        this.confirm.meta = opts.meta || null;
+                        this.confirm.loading = false;
+                        this.confirm.open = true;
+                    },
+                    closeConfirm() {
+                        this.confirm.open = false;
+                        this.confirm.loading = false;
+                        this.confirm.onAccept = null;
+                        this.confirm.meta = null;
+                    },
+                    async doConfirm() {
+                        if (typeof this.confirm.onAccept !== 'function') {
+                            this.closeConfirm();
+                            return;
+                        }
+                        try {
+                            this.confirm.loading = true;
+                            await this.confirm.onAccept();
+                            this.closeConfirm();
+                        } catch (e) {
+                            console.error(e);
+                            this.confirm.loading = false;
+                        }
+                    },
+
+                    /* ====== UI helpers ====== */
                     periodLabel() {
                         return `${this.formatDate(this.period.from)} → ${this.formatDate(this.period.to)}`;
                     },
@@ -919,16 +1595,21 @@
                     },
                     formatDate(dateStr) {
                         if (!dateStr) return '';
-                        const date = new Date(dateStr);
+                        const date = this.naiveToDate(dateStr);
+                        if (isNaN(date)) return '';
                         return new Intl.DateTimeFormat('es-MX', {
                             month: 'short',
                             day: '2-digit'
                         }).format(date);
                     },
+                    // Robusto: acepta varios formatos
                     fmt(t) {
                         if (!t) return '';
-                        const [Y, m, d, H = 0, Mi = 0, S = 0] = t.replace(' ', '-').replace(/:/g, '-').split('-').map(Number);
-                        const dt = new Date(Y, m - 1, d, H, Mi, S);
+                        const nums = String(t).match(/\d+/g);
+                        if (!nums || nums.length < 3) return '';
+                        let [Y, m, d, H = 0, Mi = 0, S = 0] = nums.map(n => parseInt(n, 10));
+                        const dt = new Date(Y || 1970, (m || 1) - 1, d || 1, H, Mi, S);
+                        if (isNaN(dt.getTime())) return '';
                         return new Intl.DateTimeFormat('es-MX', {
                             hour: '2-digit',
                             minute: '2-digit',
@@ -951,7 +1632,8 @@
                     /* Función auxiliar para móvil */
                     formatMobileDate(dateStr) {
                         if (!dateStr) return '';
-                        const date = new Date(dateStr.replace(' ', 'T'));
+                        const date = this.naiveToDate(dateStr);
+                        if (isNaN(date)) return '';
                         return new Intl.DateTimeFormat('es-MX', {
                             weekday: 'short',
                             day: 'numeric',
@@ -959,7 +1641,7 @@
                         }).format(date);
                     },
 
-                    /* Chart - FUNCIONALIDAD ORIGINAL PRESERVADA */
+                    /* ====== Chart ====== */
                     chart: null,
                     drawChart() {
                         const ctx = document.getElementById('chartIngresos');
@@ -1057,7 +1739,7 @@
                         });
                     },
 
-                    /* Agenda semanal - FUNCIONALIDAD ORIGINAL PRESERVADA */
+                    /* ====== Agenda semanal ====== */
                     gridStart: '08:00',
                     gridEnd: '19:00',
                     rowH: 60,
@@ -1069,9 +1751,7 @@
                         const out = [];
                         const [sh, sm] = this.gridStart.split(':').map(Number);
                         const [eh, em] = this.gridEnd.split(':').map(Number);
-                        for (let h = sh; h <= eh; h++) {
-                            out.push(String(h).padStart(2, '0') + ':00');
-                        }
+                        for (let h = sh; h <= eh; h++) out.push(String(h).padStart(2, '0') + ':00');
                         return out;
                     },
                     get weekTitle() {
@@ -1098,7 +1778,7 @@
                         return out;
                     },
 
-                    // Posiciones de eventos - FUNCIONALIDAD ORIGINAL + mejoras móvil
+                    // Posiciones de eventos
                     get positionedEvents() {
                         const res = [];
                         const base = new Date(this.week.start + 'T00:00:00');
@@ -1110,10 +1790,7 @@
                             if (dayIdx < 0 || dayIdx > 6) continue;
                             const top = this.pxFromTime(s);
                             const height = Math.max(40, this.pxDuration(s, e));
-
-                            // Para vista móvil día individual
                             const relativeTop = this.pxFromTime(s);
-
                             res.push({
                                 id: ev.id,
                                 dayIndex: dayIdx,
@@ -1122,8 +1799,10 @@
                                 relativeTop,
                                 hora_inicio: ev.hora_inicio,
                                 hora_fin: ev.hora_fin,
-                                cliente: ev.cliente?.nombre || 'Cliente'
+                                cliente: ev.cliente?.nombre || 'Cliente',
+                                estado: ev.estado || 'pendiente' // ← importante
                             });
+
                         }
                         return res;
                     },
@@ -1145,20 +1824,27 @@
                             cur.count++;
                             map.set(id, cur);
                         }
-                        return [...map.values()]
-                            .sort((a, b) => b.count - a.count)
-                            .slice(0, 3); // top 3
+                        return [...map.values()].sort((a, b) => b.count - a.count).slice(0, 3);
                     },
 
-                    // Funciones auxiliares - EXACTAMENTE IGUAL QUE EL ORIGINAL
+                    get csrf() {
+                        const el = document.querySelector('meta[name="csrf-token"]');
+                        return el ? el.getAttribute('content') : '';
+                    },
+
+                    /* ====== Aux ====== */
                     minutesBetween(t1, t2) {
                         const [h1, m1] = t1.split(':').map(Number);
                         const [h2, m2] = t2.split(':').map(Number);
                         return (h2 * 60 + m2) - (h1 * 60 + m1);
                     },
+                    // Robusto para múltiples formatos
                     naiveToDate(str) {
-                        const [Y, m, d, H = 0, Mi = 0, S = 0] = str.replace(' ', '-').replace(/:/g, '-').split('-').map(Number);
-                        return new Date(Y, m - 1, d, H, Mi, S);
+                        if (!str) return new Date(NaN);
+                        const nums = String(str).match(/\d+/g);
+                        if (!nums || nums.length < 3) return new Date(NaN);
+                        let [Y, m, d, H = 0, Mi = 0, S = 0] = nums.map(n => parseInt(n, 10));
+                        return new Date(Y || 1970, (m || 1) - 1, d || 1, H, Mi, S);
                     },
                     pxFromTime(date) {
                         const minsStart = date.getHours() * 60 + date.getMinutes();
@@ -1171,7 +1857,7 @@
                         return (mins / 30) * this.rowH;
                     },
 
-                    /* Fetch & navegación - EXACTAMENTE IGUAL QUE EL ORIGINAL */
+                    /* ====== Fetch & navegación ====== */
                     anchor: '',
                     async fetch(range = 'week') {
                         this.loading = true;
@@ -1213,6 +1899,245 @@
                         this.anchor = '';
                         this.fetch('week');
                     },
+
+                    /* ====== Modal revisar (principal) ====== */
+                    selectedId: null,
+                    showModal: false,
+                    citaSel: null,
+                    modal: {
+                        title: 'Cita',
+                        subtitle: ''
+                    },
+
+                    /* ====== Modal reprogramar (separado) ====== */
+                    showReprogModal: false,
+                    reprogLoading: false,
+                    reprog: {
+                        fecha: '',
+                        hora_inicio: '',
+                        hora_fin: ''
+                    },
+
+                    async openModal(id) {
+                        this.selectedId = id;
+
+                        // 1) Toma la cita ya renderizada (mismo horario que ves en la tarjeta)
+                        const base =
+                            (this.todayList || []).find(x => x.id === id) ||
+                            (this.week?.eventos || []).find(x => x.id === id) ||
+                            null;
+
+                        // Si hay base, arráncala como citaSel para que el horario sea idéntico
+                        this.citaSel = base ? JSON.parse(JSON.stringify(base)) : null;
+
+                        // 2) Trae el detalle (items, descuentos, etc.) PERO conserva el horario de `base`
+                        const prevHoras = base ? {
+                            hi: base.hora_inicio,
+                            hf: base.hora_fin
+                        } : null;
+                        await this.fetchCitaDetalle(id); // esta función hoy asigna this.citaSel = found;
+
+                        // Si el fetch cambió la referencia, vuelve a fijar las horas “buenas”
+                        if (this.citaSel && prevHoras) {
+                            this.citaSel.hora_inicio = prevHoras.hi;
+                            this.citaSel.hora_fin = prevHoras.hf;
+                        }
+
+                        // 3) Título/subtítulo del modal usando la misma fuente de horas
+                        this.modal.title = this.citaSel?.cliente?.nombre || 'Cita';
+                        this.modal.subtitle = this.rangeHour(this.citaSel?.hora_inicio, this.citaSel?.hora_fin);
+
+                        this.showModal = true;
+                    },
+
+                    closeModal() {
+                        this.showModal = false;
+                        this.citaSel = null;
+                        this.selectedId = null;
+                        this.resetReprogData();
+                    },
+
+                    openReprogModal() {
+                        if (!this.citaSel) return;
+
+                        // Inicializar datos de reprogramación
+                        const d = this.naiveToDate(this.citaSel.hora_inicio);
+                        this.reprog.fecha = !isNaN(d) ? d.toISOString().slice(0, 10) : '';
+                        if (!isNaN(d)) {
+                            this.reprog.hora_inicio = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes())
+                                .padStart(2, '0');
+                        } else {
+                            this.reprog.hora_inicio = '';
+                        }
+                        this.recalcEnd();
+
+                        this.showReprogModal = true;
+                    },
+
+                    closeReprogModal() {
+                        this.showReprogModal = false;
+                        this.resetReprogData();
+                    },
+
+                    resetReprogData() {
+                        this.reprog = {
+                            fecha: '',
+                            hora_inicio: '',
+                            hora_fin: ''
+                        };
+                        this.reprogLoading = false;
+                    },
+
+                    async fetchCitaDetalle(id) {
+                        const r = await fetch('/app/citas/lista');
+                        const d = await r.json();
+                        const found = (d.citas || []).find(x => x.id === id);
+                        if (found) {
+                            this.citaSel = found;
+                            if (!this.citaSel.totales) {
+                                let base = 0,
+                                    descLineas = 0;
+                                for (const it of (found.items || [])) {
+                                    base += (it.precio_servicio_snapshot || 0) * Math.max(1, it.cantidad || 1);
+                                    descLineas += it.descuento || 0;
+                                }
+                                const subtotal = Math.max(0, base - descLineas);
+                                const descOrden = Math.min(subtotal, found.descuento || 0);
+                                const neto = Math.max(0, subtotal - descOrden);
+                                this.citaSel.totales = {
+                                    bruto: base,
+                                    desc_lineas: descLineas,
+                                    subtotal,
+                                    desc_orden: descOrden,
+                                    neto
+                                };
+                            }
+                        }
+                    },
+
+                    totalMinsCita(cita) {
+                        let mins = 0;
+                        for (const it of (cita?.items || [])) {
+                            mins += (it.duracion_minutos_snapshot || 0) * Math.max(1, it.cantidad || 1);
+                        }
+                        return Math.max(0, mins);
+                    },
+
+                    recalcEnd() {
+                        if (!this.citaSel || !this.reprog.fecha || !this.reprog.hora_inicio) return;
+                        const start = new Date(this.reprog.fecha + 'T' + this.reprog.hora_inicio + ':00');
+                        const mins = this.totalMinsCita(this.citaSel);
+                        const end = new Date(start.getTime() + mins * 60000);
+                        const eh = String(end.getHours()).padStart(2, '0');
+                        const em = String(end.getMinutes()).padStart(2, '0');
+                        this.reprog.hora_fin = `${eh}:${em}`;
+                    },
+
+                    /* ====== Acciones ====== */
+                    async markDone(id) {
+                        if (!id) return;
+
+                        // Busca la cita en las listas visibles
+                        const item =
+                            (this.todayList || []).find(x => x.id === id) ||
+                            (this.week?.eventos || []).find(x => x.id === id) ||
+                            null;
+
+                        const prev = item ? item.estado : null;
+
+                        // UI optimista: marca como terminada localmente
+                        if (item) item.estado = 'terminada';
+
+                        try {
+                            const r = await fetch(`/app/citas/${id}/estado`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': this.csrf,
+                                    'Accept': 'application/json',
+                                    // 'X-Requested-With': 'XMLHttpRequest', // opcional si tu middleware lo espera
+                                },
+                                body: JSON.stringify({
+                                    estado: 'terminada'
+                                })
+                            });
+
+                            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+
+                            // Refresca datos para mantener todo consistente
+                            await this.fetch(this.period.range);
+
+                        } catch (e) {
+                            console.error(e);
+                            // Revierte si falló
+                            if (item) item.estado = prev;
+                            // Opcional: dar feedback
+                            // alert('No se pudo marcar como terminada. Intenta de nuevo.');
+                        }
+                    },
+
+                    askCancel(cita) {
+                        if (!cita) return;
+                        const cliente = cita?.cliente?.nombre || 'Cliente';
+                        const horario = (cita?.hora_inicio && cita?.hora_fin) ?
+                            `${this.fmt(cita.hora_inicio)} – ${this.fmt(cita.hora_fin)}` :
+                            '';
+
+                        this.openConfirm({
+                            title: 'Cancelar cita',
+                            message: '¿Seguro que deseas cancelar esta cita?',
+                            cta: 'Sí, cancelar',
+                            meta: {
+                                cliente,
+                                horario
+                            },
+                            onAccept: async () => {
+                                await fetch(`/app/citas/${cita.id}/estado`, {
+                                    method: 'PUT',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': this.csrf,
+                                        'Accept': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        estado: 'cancelada'
+                                    })
+                                });
+                                await this.fetch(this.period.range);
+                                this.closeModal();
+                            }
+                        });
+                    },
+
+                    async submitReprog() {
+                        if (!this.citaSel || !this.reprog.fecha || !this.reprog.hora_inicio) return;
+
+                        this.reprogLoading = true;
+                        try {
+                            await fetch(`/app/citas/${this.citaSel.id}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': this.csrf,
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    fecha: this.reprog.fecha,
+                                    hora_inicio: this.reprog.hora_inicio,
+                                    estado: 'reprogramada'
+                                })
+                            });
+                            await this.fetch(this.period.range);
+                            this.closeReprogModal();
+                            this.closeModal();
+                        } catch (e) {
+                            console.error(e);
+                        } finally {
+                            this.reprogLoading = false;
+                        }
+                    },
+
+                    /* ====== Init ====== */
                     async init() {
                         await this.fetch('week');
                     }
@@ -1221,16 +2146,15 @@
 
             // Mejoras táctiles para móvil
             document.addEventListener('DOMContentLoaded', function() {
-                // Prevenir zoom en doble tap
                 let lastTouchEnd = 0;
                 document.addEventListener('touchend', function(event) {
                     const now = (new Date()).getTime();
-                    if (now - lastTouchEnd <= 300) {
-                        event.preventDefault();
-                    }
+                    if (now - lastTouchEnd <= 300) event.preventDefault();
                     lastTouchEnd = now;
                 }, false);
             });
         </script>
+
+
     </div>
 </x-app-layout>
