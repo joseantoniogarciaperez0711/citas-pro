@@ -6,25 +6,26 @@
                 {{ __('Dashboard') }}
             </h2>
             <div class="flex items-center gap-2">
-                <!-- Botón: Crear/Agendar cita -->
                 <a href="{{ route('app.clientes') }}" title="Agendar cita (Alt+N)"
                     class="group inline-flex items-center gap-2 rounded-xl px-3.5 py-2 sm:px-4 sm:py-2.5
-          bg-blue-600 text-white font-semibold text-sm shadow-sm ring-1 ring-blue-600/20
-          hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5
-          active:bg-blue-800 active:translate-y-0
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
+    bg-blue-600 text-white font-semibold text-sm shadow-sm ring-1 ring-blue-600/20
+    hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5
+    active:bg-blue-800 active:translate-y-0
+    focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
+
                     <!-- Icono calendario + (agendar) -->
                     <span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-blue-500/20">
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-                            <!-- Calendario -->
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 7V3m8 4V3M5 11h14M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2" />
-                            <!-- Símbolo + dentro del calendario -->
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 13v4m2-2H10" />
                         </svg>
                     </span>
-                    <span class="hidden sm:inline">Agendar cita</span>
+
+                    <!-- Texto siempre visible -->
+                    <span class="inline">Agendar cita</span>
                 </a>
+
 
                 <!-- Píldora de fecha -->
                 <div class="inline-block px-4 py-1.5 rounded-full bg-gray-500 text-white
@@ -895,7 +896,7 @@
                                 <template x-for="ev in week.eventos" :key="ev.id">
                                     <div
                                         class="bg-gradient-to-r from-blue-900/50 to-indigo-900/50 border border-blue-800/50 rounded-lg p-3">
-                                        
+
 
 
                                         <div class="flex justify-between items-start mb-2">

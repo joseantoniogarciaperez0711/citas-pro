@@ -20,48 +20,68 @@
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
             <style>
-                [x-cloak] { display: none !important }
-                .modal-backdrop { backdrop-filter: blur(2px) }
-                .card-hover { transition: all .2s ease }
-                .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,.1) }
-                .gradient-bg { background: linear-gradient(135deg,#1f2937 0%,#374151 100%) }
+                [x-cloak] {
+                    display: none !important
+                }
+
+                .modal-backdrop {
+                    backdrop-filter: blur(2px)
+                }
+
+                .card-hover {
+                    transition: all .2s ease
+                }
+
+                .card-hover:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 25px rgba(0, 0, 0, .1)
+                }
+
+                .gradient-bg {
+                    background: linear-gradient(135deg, #1f2937 0%, #374151 100%)
+                }
             </style>
         </head>
 
         <body class="bg-gray-50 min-h-screen">
             <div x-data="empData()" x-cloak class="container mx-auto px-3 py-4 max-w-7xl">
                 <!-- Header -->
-<div class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl shadow-md p-5 sm:p-7 mb-6 text-white">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div
+                    class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl shadow-md p-5 sm:p-7 mb-6 text-white">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
-        <!-- Título y subtítulo -->
-        <div>
-            <h1 class="text-2xl sm:text-3xl font-semibold leading-tight mb-1">Información de Empleados</h1>
-            <p class="text-white/70 text-sm sm:text-base">Gestión de tu equipo</p>
-        </div>
+                        <!-- Título y subtítulo -->
+                        <div>
+                            <h1 class="text-2xl sm:text-3xl font-semibold leading-tight mb-1">Información de Empleados
+                            </h1>
+                            <p class="text-white/70 text-sm sm:text-base">Gestión de tu equipo</p>
+                        </div>
 
-        <!-- Stats y acción -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:gap-6 gap-3 text-sm text-white/80">
-            <!-- Contadores -->
-            <div class="flex justify-center sm:justify-start gap-4 sm:gap-6">
-                <span>Total: <span class="font-semibold" x-text="employees.length"></span></span>
-                <span>Activos: <span class="font-semibold" x-text="employees.filter(e => !!e.activo).length"></span></span>
-                <span>Eliminados: <span class="font-semibold" x-text="employees.filter(e => !e.activo).length"></span></span>
-            </div>
+                        <!-- Stats y acción -->
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:gap-6 gap-3 text-sm text-white/80">
+                            <!-- Contadores -->
+                            <div class="flex justify-center sm:justify-start gap-4 sm:gap-6">
+                                <span>Total: <span class="font-semibold" x-text="employees.length"></span></span>
+                                <span>Activos: <span class="font-semibold"
+                                        x-text="employees.filter(e => !!e.activo).length"></span></span>
+                                <span>Eliminados: <span class="font-semibold"
+                                        x-text="employees.filter(e => !e.activo).length"></span></span>
+                            </div>
 
-            <!-- Botón de acción -->
-            <div class="flex justify-center sm:justify-end">
-                <button @click="newEmployee()"
-                    class="inline-flex items-center gap-2 bg-white text-gray-800 hover:text-black px-4 py-2 rounded-xl font-medium shadow hover:shadow-md transition-all text-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                    </svg>
-                    <span>Nuevo Empleado</span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+                            <!-- Botón de acción -->
+                            <div class="flex justify-center sm:justify-end">
+                                <button @click="newEmployee()"
+                                    class="inline-flex items-center gap-2 bg-white text-gray-800 hover:text-black px-4 py-2 rounded-xl font-medium shadow hover:shadow-md transition-all text-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    <span>Nuevo Empleado</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
 
                 <!-- Filtros -->
@@ -100,14 +120,31 @@
                 </div>
 
                 <!-- Grid -->
+                <template x-if="filteredEmployees.length === 0">
+                    <div class="bg-white rounded-xl shadow-md p-6 text-center text-gray-500">
+                        <p class="mb-4">No hay empleados registrados.</p>
+                        <button @click="newEmployee()"
+                            class="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-xl font-medium shadow transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                            <span>Agregar empleado</span>
+                        </button>
+                    </div>
+                </template>
+
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                     <template x-for="emp in paginatedEmployees" :key="emp.id">
                         <div class="bg-white rounded-xl shadow-md p-4 card-hover">
                             <div class="flex justify-between items-start mb-3">
                                 <div class="flex items-center gap-2">
-                                    <span class="inline-block w-3 h-3 rounded-full" :style="'background-color:' + (emp.color || '#8b5cf6')"></span>
+                                    <span class="inline-block w-3 h-3 rounded-full"
+                                        :style="'background-color:' + (emp.color || '#8b5cf6')"></span>
                                     <h3 class="text-lg font-semibold text-gray-900" x-text="emp.nombre"></h3>
-                                    <span x-show="!emp.activo" class="ml-2 text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">Inactivo</span>
+                                    <span x-show="!emp.activo"
+                                        class="ml-2 text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">Inactivo</span>
                                 </div>
                                 <span class="text-xs px-2 py-1 rounded-full text-white"
                                     :style="'background-color:' + statusColor(emp.status)"
@@ -153,14 +190,16 @@
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
                         <div class="text-gray-600 text-sm text-center">
                             Mostrando <span class="font-medium" x-text="((currentPage - 1) * perPage) + 1"></span> -
-                            <span class="font-medium" x-text="Math.min(currentPage * perPage, filteredEmployees.length)"></span>
+                            <span class="font-medium"
+                                x-text="Math.min(currentPage * perPage, filteredEmployees.length)"></span>
                             de <span class="font-medium" x-text="filteredEmployees.length"></span>
                         </div>
                         <div class="flex items-center gap-2">
                             <button @click="currentPage = Math.max(1, currentPage - 1)" :disabled="currentPage === 1"
                                 :class="currentPage === 1 ? 'opacity-50' : 'hover:bg-gray-50'"
                                 class="px-3 py-1 border border-gray-300 rounded-lg text-sm">← Ant</button>
-                            <span class="px-3 py-1 text-sm font-medium" x-text="currentPage + '/' + totalPages"></span>
+                            <span class="px-3 py-1 text-sm font-medium"
+                                x-text="currentPage + '/' + totalPages"></span>
                             <button @click="currentPage = Math.min(totalPages, currentPage + 1)"
                                 :disabled="currentPage === totalPages"
                                 :class="currentPage === totalPages ? 'opacity-50' : 'hover:bg-gray-50'"
@@ -174,7 +213,8 @@
                     class="fixed inset-0 bg-black/50 modal-backdrop flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
                     <div @click.stop class="bg-white w-full sm:max-w-lg sm:rounded-lg max-h-screen overflow-y-auto">
                         <div class="bg-gray-800 text-white p-4">
-                            <h2 class="text-xl font-semibold" x-text="editingEmployee ? 'Editar empleado' : 'Nuevo empleado'"></h2>
+                            <h2 class="text-xl font-semibold"
+                                x-text="editingEmployee ? 'Editar empleado' : 'Nuevo empleado'"></h2>
                         </div>
                         <form @submit.prevent="saveEmployee()" class="p-4 space-y-4">
                             <div>
@@ -210,7 +250,8 @@
                             <div class="flex items-center">
                                 <input x-model="employeeForm.activo" type="checkbox" id="emp_activo"
                                     class="h-4 w-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500">
-                                <label for="emp_activo" class="ml-3 text-sm font-medium text-gray-700">Empleado activo</label>
+                                <label for="emp_activo" class="ml-3 text-sm font-medium text-gray-700">Empleado
+                                    activo</label>
                             </div>
 
                             <div class="flex gap-3 pt-2">
@@ -266,7 +307,10 @@
                                 timer: 1700,
                                 timerProgressBar: true
                             });
-                            Toast.fire({ icon, title: msg });
+                            Toast.fire({
+                                icon,
+                                title: msg
+                            });
                         },
                         alertError(msg) {
                             Swal.fire({
@@ -275,9 +319,16 @@
                                 text: msg || 'Ha ocurrido un error'
                             });
                         },
-                        async confirmAction({ title = '¿Estás seguro?', text = '', confirmText = 'Sí, confirmar', icon = 'warning' } = {}) {
+                        async confirmAction({
+                            title = '¿Estás seguro?',
+                            text = '',
+                            confirmText = 'Sí, confirmar',
+                            icon = 'warning'
+                        } = {}) {
                             const result = await Swal.fire({
-                                title, text, icon,
+                                title,
+                                text,
+                                icon,
                                 showCancelButton: true,
                                 confirmButtonText: confirmText,
                                 cancelButtonText: 'Cancelar',
@@ -315,11 +366,16 @@
                         // helpers
                         statusColor(st) {
                             switch ((st || '').toLowerCase()) {
-                                case 'disponible': return '#16a34a';
-                                case 'ocupado':    return '#ea580c';
-                                case 'fuera':      return '#6b7280';
-                                case 'descanso':   return '#0ea5e9';
-                                default:           return '#64748b';
+                                case 'disponible':
+                                    return '#16a34a';
+                                case 'ocupado':
+                                    return '#ea580c';
+                                case 'fuera':
+                                    return '#6b7280';
+                                case 'descanso':
+                                    return '#0ea5e9';
+                                default:
+                                    return '#64748b';
                             }
                         },
 
@@ -337,7 +393,9 @@
                         async refreshEmployees() {
                             try {
                                 const r = await fetch('/app/empleados/lista', {
-                                    headers: { 'Accept': 'application/json' }
+                                    headers: {
+                                        'Accept': 'application/json'
+                                    }
                                 });
                                 if (!r.ok) throw new Error('No se pudieron cargar los empleados');
                                 const d = await r.json();
@@ -384,7 +442,8 @@
                         async saveEmployee() {
                             try {
                                 const isEdit = !!this.editingEmployee?.id;
-                                const url = isEdit ? `/app/empleados/${this.editingEmployee.id}` : '/app/empleados';
+                                const url = isEdit ? `/app/empleados/${this.editingEmployee.id}` :
+                                    '/app/empleados';
                                 const method = isEdit ? 'PUT' : 'POST';
 
                                 const resp = await fetch(url, {
@@ -392,7 +451,8 @@
                                     headers: {
                                         'Content-Type': 'application/json',
                                         'Accept': 'application/json',
-                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                        'X-CSRF-TOKEN': document.querySelector(
+                                            'meta[name="csrf-token"]').content
                                     },
                                     body: JSON.stringify(this.employeeForm)
                                 });
@@ -401,7 +461,8 @@
                                 if (!resp.ok) throw new Error(data.error || 'Error al guardar');
 
                                 if (isEdit) {
-                                    const i = this.employees.findIndex(e => e.id === this.editingEmployee.id);
+                                    const i = this.employees.findIndex(e => e.id === this.editingEmployee
+                                        .id);
                                     if (i !== -1) this.employees[i] = {
                                         ...this.employees[i],
                                         ...data.empleado,
@@ -437,12 +498,15 @@
                                     method: 'DELETE',
                                     headers: {
                                         'Accept': 'application/json',
-                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                        'X-CSRF-TOKEN': document.querySelector(
+                                            'meta[name="csrf-token"]').content
                                     }
                                 });
 
                                 let payload = {};
-                                try { payload = await resp.json(); } catch (_) {}
+                                try {
+                                    payload = await resp.json();
+                                } catch (_) {}
 
                                 if (!resp.ok) {
                                     throw new Error(payload.error || 'Error al desactivar');
@@ -481,7 +545,8 @@
                                     method: 'PUT',
                                     headers: {
                                         'Accept': 'application/json',
-                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                        'X-CSRF-TOKEN': document.querySelector(
+                                            'meta[name="csrf-token"]').content
                                     }
                                 });
 
