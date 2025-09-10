@@ -3,6 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+
 
 return new class extends Migration
 {
@@ -20,6 +22,21 @@ return new class extends Migration
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
+
+            // 👇 Campos de membresía
+            $table->string('plan_actual')->default('prueba'); // Valor por defecto = "prueba"
+
+            // Fecha inicio = hoy
+            $table->date('fecha_inicio_membresia')
+                ->default(DB::raw('CURRENT_DATE'));
+
+            // Fecha fin = hoy + 7 días
+            $table->date('fecha_fin_membresia')
+                ->default(DB::raw('(CURRENT_DATE + INTERVAL 7 DAY)'));
+
+            $table->enum('status_membresia', ['activa', 'inactiva', 'pendiente'])
+                ->default('pendiente');
+
             $table->timestamps();
         });
 
