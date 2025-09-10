@@ -1480,6 +1480,56 @@
                 </div>
             </div>
 
+            <!-- Onboarding: Primeros pasos (solo si no hay empleados NI servicios) -->
+            <div x-cloak x-show="showFirstStepsModal" x-transition.opacity
+                class="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                <div class="absolute inset-0 bg-black/70" @click="showFirstStepsModal=false"></div>
+
+                <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden">
+                    <div class="px-6 py-5 border-b border-gray-200 flex items-start justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900">¡Bienvenido! Configura lo básico</h3>
+                            <p class="text-sm text-gray-600 mt-1">
+                                Antes de empezar a agendar, entra a la sección de <strong>Servicios</strong>: ahí puedes
+                                dar de alta todo lo necesario (categorias, empleados y servicios) en un mismo lugar.
+                            </p>
+                        </div>
+                        <button class="text-gray-400 hover:text-gray-700"
+                            @click="showFirstStepsModal=false">✕</button>
+                    </div>
+
+                    <div class="p-6 space-y-4">
+                        
+
+                        <div class="flex items-start gap-3">
+                            <div class="shrink-0 w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-900">Servicios</h4>
+                                <p class="text-sm text-gray-600">Crea los servicios con precio y duración.</p>
+                            </div>
+                            <a href="{{ route('app.servicios') }}"
+                                class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-semibold">
+                                Ir a Servicios
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-end">
+                        <button class="px-4 py-2 text-sm font-semibold text-gray-700 hover:text-gray-900"
+                            @click="showFirstStepsModal=false">
+                            Entendido
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
 
         </div>
 
@@ -2138,9 +2188,57 @@
                         }
                     },
 
+                    showFirstStepsModal: false,
+                    needEmps: false,
+                    needServices: false,
+
+                    async checkFirstSteps() {
+                        try {
+                            const [re, rs] = await Promise.all([
+                                fetch('/app/empleados/lista', {
+                                    headers: {
+                                        'Accept': 'application/json'
+                                    }
+                                }),
+                                fetch('/app/servicios/lista', {
+                                    headers: {
+                                        'Accept': 'application/json'
+                                    }
+                                }),
+                            ]);
+
+                            let empCount = 0,
+                                servCount = 0;
+
+                            if (re.ok) {
+                                const de = await re.json();
+                                // soporta { empleados: [...] } o { data: [...] }
+                                empCount = Array.isArray(de.empleados) ? de.empleados.length :
+                                    Array.isArray(de.data) ? de.data.length : 0;
+                            }
+
+                            if (rs.ok) {
+                                const ds = await rs.json();
+                                // soporta { servicios: [...] } o { data: [...] }
+                                servCount = Array.isArray(ds.servicios) ? ds.servicios.length :
+                                    Array.isArray(ds.data) ? ds.data.length : 0;
+                            }
+
+                            this.needEmps = empCount === 0;
+                            this.needServices = servCount === 0;
+
+                            // requisito: mostrar SOLO si NO hay empleados NI servicios
+                            this.showFirstStepsModal = (empCount === 0 && servCount === 0);
+                        } catch (e) {
+                            console.error(e);
+                        }
+                    },
+
                     /* ====== Init ====== */
                     async init() {
                         await this.fetch('week');
+                        await this.checkFirstSteps();
+
                     }
                 }
             }
