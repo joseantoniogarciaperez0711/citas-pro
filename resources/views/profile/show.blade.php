@@ -63,6 +63,126 @@
                 <x-section-border />
             @endif
 
+            {{-- SECCIÓN: MEMBRESÍA PREMIUM (SÚPER COMPACTA Y ORGANIZADA) --}}
+<div id="membresia" class="mt-10 sm:mt-0">
+    <x-action-section>
+        <x-slot name="title">{{ __('Membresía') }}</x-slot>
+        <x-slot name="description">{{ __('Estado de tu suscripción.') }}</x-slot>
+
+        <x-slot name="content">
+            @php
+                $user = Auth::user();
+                $plan = $user->plan_actual ?? 'prueba';
+                $fechaFin = $user->fecha_fin_membresia
+                    ? \Carbon\Carbon::parse($user->fecha_fin_membresia)
+                    : null;
+                $now = now();
+                $expirada = $fechaFin ? $now->gt($fechaFin) : false;
+                $estado = $user->status_membresia;
+                $estadoVisual = $expirada && $estado !== 'inactiva' ? 'vencida' : $estado;
+                $esActiva = $estado === 'activa' && !$expirada;
+
+                $segundosRestantes = $fechaFin && !$expirada ? $now->diffInSeconds($fechaFin) : 0;
+                $diasRestantes = intdiv($segundosRestantes, 86400);
+                $horasRestantes = intdiv($segundosRestantes % 86400, 3600);
+                $minutosRestantes = intdiv($segundosRestantes % 3600, 60);
+
+                $waText = 'Hola, soy ' . $user->name . ' (ID: ' . $user->id . '). Quiero renovar mi membresía.';
+                $waUrl = 'https://wa.me/529221064114?text=' . urlencode($waText);
+            @endphp
+
+            <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                {{-- Encabezado: Plan y Estado --}}
+                <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
+                    <div class="flex items-center gap-4">
+                        <h3 class="text-xl font-bold text-black">Plan {{ ucfirst($plan) }}</h3>
+                        <span
+                            class="px-3 py-1 rounded-full text-sm font-semibold {{ $esActiva ? 'bg-green-100 text-green-800' : ($estadoVisual === 'pendiente' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
+                            {{ ucfirst($estadoVisual) }}
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        {{-- Botón Activar/Renovar corregido --}}
+                        <a href="{{ $waUrl }}" 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                            {{ $esActiva ? 'Renovar' : 'Activar' }}
+                        </a>
+
+                        <a href="https://wa.me/529221064114?text=Necesito ayuda con mi membresía"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
+                            Soporte
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Información de tiempo --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {{-- Tiempo restante --}}
+                    @if ($esActiva || $estadoVisual === 'pendiente')
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-blue-100 rounded-lg">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 font-medium">Tiempo restante</p>
+                                <p class="text-lg font-bold text-black">
+                                    @if ($diasRestantes > 0)
+                                        {{ $diasRestantes }}d {{ $horasRestantes }}h
+                                        {{ $minutosRestantes }}m
+                                    @else
+                                        {{ $horasRestantes }}h {{ $minutosRestantes }}m
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                    @else
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-red-100 rounded-lg">
+                                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 font-medium">Estado</p>
+                                <p class="text-lg font-bold text-red-600">Membresía vencida</p>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Fecha de vencimiento --}}
+                    @if ($fechaFin)
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-purple-100 rounded-lg">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 font-medium">Fecha de vencimiento</p>
+                                <p class="text-lg font-bold text-black">{{ $fechaFin->format('d/m/Y') }}
+                                </p>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </x-slot>
+    </x-action-section>
+</div>
+
+
             @if (Laravel\Fortify\Features::enabled(Laravel\Fortify\Features::updatePasswords()))
                 <div class="mt-10 sm:mt-0">
                     @livewire('profile.update-password-form')
@@ -125,183 +245,4 @@
             });
         }
     </script>
-
-    <style>
-            [x-cloak] {
-                display: none !important;
-            }
-
-            /* Epicentro de la onda */
-            .wave-epicenter {
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                width: 20px;
-                height: 20px;
-                background: radial-gradient(circle, #ff6b35, #f7931e);
-                border-radius: 50%;
-                transform: translate(-50%, -50%);
-                z-index: 1000;
-                pointer-events: none;
-                opacity: 0;
-            }
-
-            /* Ondas expansivas */
-            .shock-wave {
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                border: 3px solid transparent;
-                border-radius: 50%;
-                transform: translate(-50%, -50%);
-                pointer-events: none;
-                z-index: 999;
-            }
-
-            /* Animaciones de las ondas */
-            .wave-1 {
-                animation: expand-wave 2.5s ease-out forwards;
-                border-color: rgba(255, 107, 53, 0.8);
-            }
-
-            .wave-2 {
-                animation: expand-wave 2.5s ease-out 0.3s forwards;
-                border-color: rgba(247, 147, 30, 0.6);
-            }
-
-            .wave-3 {
-                animation: expand-wave 2.5s ease-out 0.6s forwards;
-                border-color: rgba(255, 67, 101, 0.4);
-            }
-
-            @keyframes expand-wave {
-                0% {
-                    width: 0;
-                    height: 0;
-                    opacity: 1;
-                    border-width: 6px;
-                }
-
-                50% {
-                    opacity: 0.7;
-                    border-width: 3px;
-                }
-
-                100% {
-                    width: 300vmax;
-                    height: 300vmax;
-                    opacity: 0;
-                    border-width: 1px;
-                }
-            }
-
-            /* Epicentro animado */
-            .epicenter-pulse {
-                animation: pulse-epicenter 1.5s ease-in-out forwards;
-            }
-
-            @keyframes pulse-epicenter {
-                0% {
-                    opacity: 0;
-                    transform: translate(-50%, -50%) scale(0);
-                }
-
-                20% {
-                    opacity: 1;
-                    transform: translate(-50%, -50%) scale(1);
-                    box-shadow: 0 0 20px #ff6b35;
-                }
-
-                60% {
-                    opacity: 1;
-                    transform: translate(-50%, -50%) scale(1.5);
-                    box-shadow: 0 0 40px #ff6b35, 0 0 80px #f7931e;
-                }
-
-                100% {
-                    opacity: 0;
-                    transform: translate(-50%, -50%) scale(2);
-                    box-shadow: 0 0 60px transparent;
-                }
-            }
-
-            /* Efectos de desintegración optimizados */
-            .disintegrable {
-                transition: all 0.1s ease-out;
-            }
-
-            .particle-fade {
-                animation: disintegrate 1.5s ease-out forwards;
-                transform-origin: center;
-            }
-
-            @keyframes disintegrate {
-                0% {
-                    opacity: 1;
-                    transform: scale(1) translateY(0);
-                    filter: blur(0px) brightness(1);
-                }
-
-                30% {
-                    opacity: 0.8;
-                    transform: scale(1.02) translateY(-2px);
-                    filter: blur(0.5px) brightness(1.2);
-                }
-
-                60% {
-                    opacity: 0.4;
-                    transform: scale(0.98) translateY(5px);
-                    filter: blur(2px) brightness(0.8);
-                }
-
-                100% {
-                    opacity: 0;
-                    transform: scale(0.9) translateY(20px);
-                    filter: blur(4px) brightness(0.3);
-                }
-            }
-
-            /* Partículas flotantes (solo en pantallas grandes) */
-            @media (min-width: 768px) {
-                .floating-particles {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    pointer-events: none;
-                    z-index: 998;
-                }
-
-                .particle {
-                    position: absolute;
-                    width: 4px;
-                    height: 4px;
-                    background: linear-gradient(45deg, #ff6b35, #f7931e);
-                    border-radius: 50%;
-                    opacity: 0;
-                }
-
-                .particle-float {
-                    animation: float-particle 3s ease-out forwards;
-                }
-
-                @keyframes float-particle {
-                    0% {
-                        opacity: 1;
-                        transform: scale(1) translateY(0);
-                    }
-
-                    50% {
-                        opacity: 0.8;
-                        transform: scale(1.2) translateY(-30px);
-                    }
-
-                    100% {
-                        opacity: 0;
-                        transform: scale(0.5) translateY(-80px);
-                    }
-                }
-            }
-        </style>
 </x-app-layout>

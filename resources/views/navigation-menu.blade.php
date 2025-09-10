@@ -1,9 +1,11 @@
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
 
-    @if (Auth::check() && (Auth::user()->status_membresia === 'inactiva' || now()->gt(Auth::user()->fecha_fin_membresia)))
+    @if (Auth::check() && Auth::user()->status_membresia === 'inactiva')
         <!-- Control del efecto + modal -->
-        <div x-data="{ showModal: false, isDisintegrating: false }" x-init="setTimeout(() => { isDisintegrating = true;
-            startDisintegration(); }, 5000);
+        <div x-data="{ showModal: false, isDisintegrating: false }" x-init="setTimeout(() => {
+            isDisintegrating = true;
+            startDisintegration();
+        }, 5000);
         setTimeout(() => { showModal = true }, 8000);">
             <!-- Modal teleportado al body -->
             <template x-teleport="body">
@@ -258,6 +260,12 @@
                     <x-nav-link href="{{ route('app.empleados') }}" :active="request()->routeIs('app.empleados*')">
                         {{ __('Empleados') }}
                     </x-nav-link>
+
+                    {{-- Membresía --}}
+                    <x-nav-link href="{{ route('profile.show') }}#membresia" :active="request()->routeIs('profile.show')">
+                        {{ __('Membresía') }}
+                    </x-nav-link>
+
                 </div>
             </div>
 
@@ -451,6 +459,19 @@
                     <span>{{ __('Empleados') }}</span>
                 </span>
             </x-responsive-nav-link>
+
+            {{-- Membresía (Responsive) --}}
+            <x-responsive-nav-link href="{{ route('profile.show') }}#membresia" :active="request()->routeIs('profile.show')">
+                <span class="flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-none" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{{ __('Membresía') }}</span>
+                </span>
+            </x-responsive-nav-link>
+
         </div>
 
         <!-- Responsive Settings Options -->
