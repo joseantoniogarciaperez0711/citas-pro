@@ -125,4 +125,183 @@
             });
         }
     </script>
+
+    <style>
+            [x-cloak] {
+                display: none !important;
+            }
+
+            /* Epicentro de la onda */
+            .wave-epicenter {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                width: 20px;
+                height: 20px;
+                background: radial-gradient(circle, #ff6b35, #f7931e);
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 1000;
+                pointer-events: none;
+                opacity: 0;
+            }
+
+            /* Ondas expansivas */
+            .shock-wave {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                border: 3px solid transparent;
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                pointer-events: none;
+                z-index: 999;
+            }
+
+            /* Animaciones de las ondas */
+            .wave-1 {
+                animation: expand-wave 2.5s ease-out forwards;
+                border-color: rgba(255, 107, 53, 0.8);
+            }
+
+            .wave-2 {
+                animation: expand-wave 2.5s ease-out 0.3s forwards;
+                border-color: rgba(247, 147, 30, 0.6);
+            }
+
+            .wave-3 {
+                animation: expand-wave 2.5s ease-out 0.6s forwards;
+                border-color: rgba(255, 67, 101, 0.4);
+            }
+
+            @keyframes expand-wave {
+                0% {
+                    width: 0;
+                    height: 0;
+                    opacity: 1;
+                    border-width: 6px;
+                }
+
+                50% {
+                    opacity: 0.7;
+                    border-width: 3px;
+                }
+
+                100% {
+                    width: 300vmax;
+                    height: 300vmax;
+                    opacity: 0;
+                    border-width: 1px;
+                }
+            }
+
+            /* Epicentro animado */
+            .epicenter-pulse {
+                animation: pulse-epicenter 1.5s ease-in-out forwards;
+            }
+
+            @keyframes pulse-epicenter {
+                0% {
+                    opacity: 0;
+                    transform: translate(-50%, -50%) scale(0);
+                }
+
+                20% {
+                    opacity: 1;
+                    transform: translate(-50%, -50%) scale(1);
+                    box-shadow: 0 0 20px #ff6b35;
+                }
+
+                60% {
+                    opacity: 1;
+                    transform: translate(-50%, -50%) scale(1.5);
+                    box-shadow: 0 0 40px #ff6b35, 0 0 80px #f7931e;
+                }
+
+                100% {
+                    opacity: 0;
+                    transform: translate(-50%, -50%) scale(2);
+                    box-shadow: 0 0 60px transparent;
+                }
+            }
+
+            /* Efectos de desintegración optimizados */
+            .disintegrable {
+                transition: all 0.1s ease-out;
+            }
+
+            .particle-fade {
+                animation: disintegrate 1.5s ease-out forwards;
+                transform-origin: center;
+            }
+
+            @keyframes disintegrate {
+                0% {
+                    opacity: 1;
+                    transform: scale(1) translateY(0);
+                    filter: blur(0px) brightness(1);
+                }
+
+                30% {
+                    opacity: 0.8;
+                    transform: scale(1.02) translateY(-2px);
+                    filter: blur(0.5px) brightness(1.2);
+                }
+
+                60% {
+                    opacity: 0.4;
+                    transform: scale(0.98) translateY(5px);
+                    filter: blur(2px) brightness(0.8);
+                }
+
+                100% {
+                    opacity: 0;
+                    transform: scale(0.9) translateY(20px);
+                    filter: blur(4px) brightness(0.3);
+                }
+            }
+
+            /* Partículas flotantes (solo en pantallas grandes) */
+            @media (min-width: 768px) {
+                .floating-particles {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    pointer-events: none;
+                    z-index: 998;
+                }
+
+                .particle {
+                    position: absolute;
+                    width: 4px;
+                    height: 4px;
+                    background: linear-gradient(45deg, #ff6b35, #f7931e);
+                    border-radius: 50%;
+                    opacity: 0;
+                }
+
+                .particle-float {
+                    animation: float-particle 3s ease-out forwards;
+                }
+
+                @keyframes float-particle {
+                    0% {
+                        opacity: 1;
+                        transform: scale(1) translateY(0);
+                    }
+
+                    50% {
+                        opacity: 0.8;
+                        transform: scale(1.2) translateY(-30px);
+                    }
+
+                    100% {
+                        opacity: 0;
+                        transform: scale(0.5) translateY(-80px);
+                    }
+                }
+            }
+        </style>
 </x-app-layout>
