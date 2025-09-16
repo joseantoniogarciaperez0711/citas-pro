@@ -521,256 +521,75 @@
         <div x-data="dashboard()" x-cloak
             class="container mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 space-y-4 sm:space-y-6">
 
-            <!-- KPI Cards Section - Mobile optimized grid -->
-            <section class="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
 
-                <!-- Clientes más frecuentes (reemplazo de Ocupación) -->
-                <div class="dashboard-card kpi-card fade-in">
-                    <div class="flex items-center justify-between mb-2 sm:mb-4">
-                        <div class="text-gray-300 font-medium text-sm sm:text-base">Clientes más frecuentes</div>
-                        <div class="text-xs text-gray-500 hidden sm:block" x-text="weekTitle"></div>
-                    </div>
-
-                    <template x-if="topClientesSemana.length === 0">
-                        <div class="text-xs sm:text-sm text-gray-400">Sin datos esta semana</div>
-                    </template>
-
-                    <div class="space-y-2" x-show="topClientesSemana.length">
-                        <template x-for="(c, idx) in topClientesSemana" :key="c.id ?? idx">
-                            <div
-                                class="flex items-center justify-between bg-slate-700/40 border border-slate-600/40 rounded-lg px-3 py-2">
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <div
-                                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs sm:text-sm font-bold">
-                                        <span x-text="(c.nombre || 'C')[0].toUpperCase()"></span>
-                                    </div>
-                                    <div class="truncate">
-                                        <div class="text-white text-sm font-semibold truncate"
-                                            x-text="c.nombre || 'Cliente'"></div>
-                                        <div class="text-xs text-gray-400"
-                                            x-text="Math.round((c.count / Math.max(1,totalCitasSemana))*100) + '% de las citas'">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="text-xs sm:text-sm font-semibold text-blue-300">x<span
-                                        x-text="c.count"></span></div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <section class="lg:col-span-2 grid grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-                    <!-- Ingresos Netos Card -->
-                    <div class="dashboard-card kpi-card fade-in">
-                        <div class="flex items-center justify-between mb-2 sm:mb-4">
-                            <div class="flex items-center gap-2">
-                                <div
-                                    class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg gradient-green flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <span class="text-gray-300 font-medium text-sm sm:text-base truncate">Ingresos
-                                    Netos</span>
-                            </div>
-                        </div>
-
-                        <div class="kpi-value text-green-400 mb-2" x-text="money(kpi.neto)"></div>
-                        <div class="text-xs sm:text-sm text-gray-400" x-text="periodLabel"></div>
-                    </div>
-
-                    <!-- Descuentos Card -->
-                    <div class="dashboard-card kpi-card fade-in">
-                        <div class="flex items-center justify-between mb-2 sm:mb-4">
-                            <div class="flex items-center gap-2">
-                                <div
-                                    class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg gradient-red flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M20 12H4">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <span class="text-gray-300 font-medium text-sm sm:text-base truncate">Descuentos</span>
-                            </div>
-                        </div>
-
-                        <!-- total = desc_linea + desc_orden -->
-                        <div class="kpi-value text-red-400 mb-2" x-text="'-' + money(kpi.desc_total)"></div>
-
-                        <!-- breakdown -->
-                        <div class="text-xs sm:text-sm text-gray-400">
-                            <span class="mr-3">xServicios: <span x-text="money(kpi.desc_linea)"></span></span>
-                            <br>
-                            <span>General: <span x-text="money(kpi.desc_orden)"></span></span>
-                        </div>
-
-                        <!-- mismo pie de rango que en Ingresos Netos -->
-                        <div class="text-xs sm:text-sm text-gray-400 mt-1" x-text="periodLabel"></div>
-                    </div>
-
-                </section>
-
-
-
-                <!-- Citas y Clientes Card -->
-                <div class="dashboard-card kpi-card fade-in">
-                    <div class="grid grid-cols-2 gap-2 sm:gap-4">
-                        <div class="text-center">
-                            <div
-                                class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg gradient-blue flex items-center justify-center mx-auto mb-1 sm:mb-2">
-                                <svg class="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                    </path>
-                                </svg>
-                            </div>
-                            <div class="text-lg sm:text-xl font-bold text-white mb-1" x-text="kpi.citas_hoy"></div>
-                            <div class="text-xs text-gray-400">Citas Hoy</div>
-                        </div>
-                        <div class="text-center">
-                            <div
-                                class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg gradient-purple flex items-center justify-center mx-auto mb-1 sm:mb-2">
-                                <svg class="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
-                                    </path>
-                                </svg>
-                            </div>
-                            <div class="text-lg sm:text-xl font-bold text-white mb-1" x-text="kpi.clientes_periodo">
-                            </div>
-                            <div class="text-xs text-gray-400">Clientes</div>
-                        </div>
-                    </div>
-                    <div class="text-xs text-gray-500 text-center mt-3" x-text="periodLabel"></div>
-                </div>
-
-            </section>
-
-            <!-- Próximas Citas y Chart Section - Mobile reorganized -->
-            <section class="grid grid-cols-1 xl:grid-cols-5 gap-4 sm:gap-6">
-
-                <!-- Próximas Citas -->
-                <div class="dashboard-card xl:col-span-2 fade-in">
-                    <div class="flex items-center justify-between mb-4 sm:mb-6">
-                        <h3 class="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
-                            <div class="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                            <span class="sm:hidden">Hoy</span>
-                            <span class="hidden sm:inline">Próximas Citas</span>
-                        </h3>
-                        <div class="text-xs sm:text-sm text-gray-400" x-text="todayHuman"></div>
-                    </div>
-
-                    <template x-if="todayList.length === 0">
-                        <div class="text-center py-8 sm:py-12">
-                            <svg class="w-12 h-12 sm:w-16 sm:h-16 text-gray-600 mx-auto mb-4" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                </path>
-                            </svg>
-                            <p class="text-gray-500 text-sm">No hay citas programadas para hoy</p>
-                        </div>
-                    </template>
-
-                    <div class="space-y-2 sm:space-y-3" x-show="todayList.length">
-                        <template x-for="c in todayList" :key="c.id">
-                            <div
-                                class="bg-gradient-to-r from-blue-900/50 to-indigo-900/50 border border-blue-800/50 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:border-blue-700/70 transition-all duration-200 slide-in">
-
-                                <!-- Layout principal: stack en móvil, flex en desktop -->
-                                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-
-                                    <!-- Información del cliente - ocupa todo el ancho en móvil -->
-                                    <div class="flex-1 min-w-0">
-                                        <!-- Header con cliente y estado -->
-                                        <div class="flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-3 mb-2">
-                                            <h3 class="font-bold text-white text-base sm:text-lg leading-tight break-words"
-                                                x-text="c.cliente?.nombre || 'Cliente'"></h3>
-                                            <span class="status-badge self-start xs:self-center flex-shrink-0"
-                                                :class="'status-' + (c.estado || '').toLowerCase()"
-                                                x-text="(c.estado || '').charAt(0).toUpperCase() + (c.estado || '').slice(1)"></span>
-                                        </div>
-
-                                        <!-- Horario -->
-                                        <div class="text-sm sm:text-base text-gray-300 flex items-center gap-2">
-                                            <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none"
-                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <span class="font-medium"
-                                                x-text="rangeHour(c.hora_inicio, c.hora_fin)"></span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Botones de acción -->
-                                    <div
-                                        class="flex flex-row sm:flex-col gap-2 justify-stretch sm:justify-start sm:flex-shrink-0">
-                                        <!-- Botón Terminado -->
-                                        <button
-                                            class="bg-green-600 hover:bg-green-700 text-white px-2.5 py-2 rounded-md text-xs font-medium transition-colors flex items-center justify-center gap-1.5 min-h-[36px] min-w-[84px] disabled:opacity-60 disabled:cursor-not-allowed"
-                                            @click="markDone(c.id)"
-                                            :disabled="['terminada', 'cancelada'].includes((c.estado || '').toLowerCase())">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M5 13l4 4L19 7"></path>
-                                            </svg>
-                                            <span>Terminado</span>
-                                        </button>
-
-
-                                        <button
-                                            class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-2 rounded-md text-xs font-medium transition-colors flex items-center justify-center gap-1.5 min-h-[36px] min-w-[84px]"
-                                            @click="openModal(c.id)">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                                                </path>
-                                            </svg>
-                                            <span>Revisar</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <!-- Chart de Ingresos -->
-                <div class="dashboard-card xl:col-span-3 fade-in">
-                    <div class="flex items-center justify-between mb-4 sm:mb-6">
-                        <h3 class="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
-                            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-green-400" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-                                </path>
-                            </svg>
-                            Ingresos
-                        </h3>
-                        <div class="text-xs sm:text-sm text-gray-400" x-text="periodLabel"></div>
-                    </div>
-
-                    <div class="chart-container">
-                        <canvas id="chartIngresos"></canvas>
-                    </div>
-                </div>
-
-            </section>
-
-            <!-- Agenda Semanal - Mobile optimized -->
-            <section class="schedule-grid fade-in" x-data="{ mobileView: 'week', selectedDay: 0 }">
+            <!-- Agenda Semanal - Lista única (móvil y PC) con FECHA destacada -->
+            <!-- Agenda Semanal - Lista única (móvil y PC) con FECHA destacada -->
+            <section class="schedule-grid fade-in" x-data="{
+                statusFilter: 'pendiente',
+                /* 👈 por defecto 'pendiente' */
+                search: '',
+                dateTokens(dStr) {
+                    const dt = new Date(dStr);
+                    return {
+                        dow: dt.toLocaleDateString('es-MX', { weekday: 'short' }).replace('.', '').toUpperCase(),
+                        day: dt.toLocaleDateString('es-MX', { day: '2-digit' }),
+                        mon: dt.toLocaleDateString('es-MX', { month: 'short' }).replace('.', '').toUpperCase(),
+                        full: dt.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: '2-digit' })
+                    };
+                },
+                isToday(dStr) {
+                    const d = new Date(dStr);
+                    const now = new Date();
+                    return d.getFullYear() === now.getFullYear() &&
+                        d.getMonth() === now.getMonth() &&
+                        d.getDate() === now.getDate();
+                },
+                // 👉 reprogramada cuenta como pendiente
+                priority(estado) {
+                    const e = (estado || '').toLowerCase();
+                    if (e === 'pendiente' || e === 'reprogramada' || e === 'confirmada') return 0;
+                    if (e === 'programada') return 1;
+                    if (e === 'terminada' || e === 'cancelada') return 2;
+                    return 99;
+                },
+                get filteredWeek() {
+                    const q = (this.search || '').toLowerCase().trim();
+                    const sf = (this.statusFilter || 'todas').toLowerCase();
+            
+                    // Toma eventos desde el root si existe, o desde una var local `week`
+                    const items = ($root?.week?.eventos || week?.eventos || []);
+            
+                    const filtered = items.filter(ev => {
+                        const est = (ev.estado || '').toLowerCase();
+                        const nombre = (ev.cliente?.nombre || '').toLowerCase();
+            
+                        // 👉 magia: cuando filtro es 'pendiente', incluye 'reprogramada'
+                        const byStatus = (sf === 'todas') ?
+                            true :
+                            (sf === 'pendiente') ?
+                            (est === 'pendiente' || est === 'reprogramada') :
+                            (est === sf);
+            
+                        const bySearch = !q || nombre.includes(q);
+                        return byStatus && bySearch;
+                    });
+            
+                    return filtered.sort((a, b) => {
+                        const da = new Date(a.hora_inicio);
+                        const db = new Date(b.hora_inicio);
+                        if (sf === 'todas') {
+                            const pa = this.priority(a.estado);
+                            const pb = this.priority(b.estado);
+                            if (pa !== pb) return pa - pb;
+                            return da - db;
+                        }
+                        return da - db;
+                    });
+                }
+            }">
                 <div class="schedule-header">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+                        <!-- Controles de semana -->
                         <div class="flex items-center gap-2 sm:gap-3">
                             <button @click="goPrevWeek()" :disabled="loading"
                                 class="btn-secondary flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
@@ -797,266 +616,161 @@
                             </button>
 
                             <button @click="goThisWeek()" :disabled="loading"
-                                class="btn-primary text-xs sm:text-sm">
-                                Hoy
-                            </button>
+                                class="btn-primary text-xs sm:text-sm">Hoy</button>
                         </div>
 
+                        <!-- Info / zona horaria -->
                         <div class="flex items-center gap-2 text-xs sm:text-sm text-gray-400">
-                            <!-- Toggle vista móvil/desktop solo visible en móvil -->
-                            <div class="sm:hidden flex bg-gray-700 rounded-lg p-1">
-                                <button @click="mobileView = 'week'"
-                                    :class="mobileView === 'week' ? 'bg-blue-600 text-white' : 'text-gray-400'"
-                                    class="px-2 py-1 rounded text-xs font-medium transition-all">
-                                    Lista
-                                </button>
-                                <button @click="mobileView = 'day'"
-                                    :class="mobileView === 'day' ? 'bg-blue-600 text-white' : 'text-gray-400'"
-                                    class="px-2 py-1 rounded text-xs font-medium transition-all">
-                                    Día
-                                </button>
-                            </div>
+                            <svg class="w-4 h-4 hidden sm:block" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="hidden sm:inline">TZ: America/Mexico_City</span>
+                        </div>
+                    </div>
 
-                            <div class="hidden sm:flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                TZ: America/Mexico_City
+                    <!-- Filtros rápidos (opcional) -->
+                    <div class="mt-3 sm:mt-4 flex flex-col sm:flex-row gap-2 sm:items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-gray-400">Filtrar:</span>
+                            <div class="flex bg-gray-700 rounded-lg p-1">
+                                <button @click="statusFilter='todas'"
+                                    :class="statusFilter === 'todas' ? 'bg-blue-600 text-white' :
+                                        'text-gray-300 hover:text-white'"
+                                    class="px-2 py-1 rounded text-xs font-medium transition-all">Todas</button>
+                                <button @click="statusFilter='pendiente'"
+                                    :class="statusFilter === 'pendiente' ? 'bg-blue-600 text-white' :
+                                        'text-gray-300 hover:text-white'"
+                                    class="px-2 py-1 rounded text-xs font-medium transition-all">Pendiente</button>
+                                <button @click="statusFilter='terminada'"
+                                    :class="statusFilter === 'terminada' ? 'bg-blue-600 text-white' :
+                                        'text-gray-300 hover:text-white'"
+                                    class="px-2 py-1 rounded text-xs font-medium transition-all">Terminada</button>
+                                <button @click="statusFilter='cancelada'"
+                                    :class="statusFilter === 'cancelada' ? 'bg-blue-600 text-white' :
+                                        'text-gray-300 hover:text-white'"
+                                    class="px-2 py-1 rounded text-xs font-medium transition-all">Cancelada</button>
                             </div>
+                        </div>
+
+                        <div class="flex-1">
+                            <label class="sr-only" for="search-week">Buscar</label>
+                            <input id="search-week" type="text" x-model="search" placeholder="Buscar por cliente…"
+                                class="w-full sm:w-64 bg-gray-800 text-gray-200 text-xs sm:text-sm rounded-md px-3 py-2
+                           border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent">
                         </div>
                     </div>
                 </div>
 
                 <div class="p-3 sm:p-6">
-                    <!-- Vista móvil por días -->
-                    <div x-show="mobileView === 'day'" class="sm:hidden">
-                        <!-- Day picker horizontal scroll -->
-                        <div class="day-picker mb-4">
-                            <template x-for="(d, idx) in weekDays" :key="idx">
-                                <button @click="selectedDay = idx"
-                                    :class="selectedDay === idx ? 'day-button active' : 'day-button'"
-                                    class="day-button">
-                                    <div class="text-xs font-bold" x-text="d.short"></div>
-                                    <div class="text-lg font-bold mt-1" x-text="d.day"></div>
-                                    <div x-show="d.isToday" class="w-1 h-1 bg-white rounded-full mt-1"></div>
-                                </button>
-                            </template>
-                        </div>
-
-                        <!-- Vista día seleccionado -->
-                        <div class="mobile-day-view mobile-scroll">
-                            <div class="relative">
-                                <!-- Horas y eventos del día -->
-                                <template x-for="h in hoursGrid" :key="h">
-                                    <div class="time-slot flex">
-                                        <div class="w-16 flex-shrink-0 flex items-start pt-2 pr-2">
-                                            <span
-                                                class="text-xs font-medium text-gray-500 bg-gray-800 px-2 py-1 rounded"
-                                                x-text="h"></span>
-                                        </div>
-                                        <div class="flex-1 border-l border-gray-700 relative"></div>
-                                    </div>
-                                </template>
-
-                                <!-- Eventos posicionados del día seleccionado -->
-                                <template x-for="ev in positionedEvents.filter(e => e.dayIndex === selectedDay)"
-                                    :key="ev.id">
-                                    <div class="appointment-event absolute"
-                                        :style="`top:${ev.relativeTop}px; height:${ev.height}px; left: 68px; right: 8px;`">
-
-                                        <div class="flex items-center gap-2">
-                                            <div class="font-semibold truncate" x-text="ev.cliente"></div>
-                                            <span class="status-badge"
-                                                :class="'status-' + (ev.estado || '').toLowerCase()"
-                                                x-text="(ev.estado || '').charAt(0).toUpperCase() + (ev.estado || '').slice(1)">
-                                            </span>
+                    <!-- Lista única para toda la semana -->
+                    <div>
+                        <div class="space-y-2 md:space-y-0 md:grid md:grid-cols-2 xl:grid-cols-3 md:gap-3"
+                            x-show="filteredWeek.length">
+                            <template x-for="ev in filteredWeek" :key="ev.id">
+                                <div class="bg-gradient-to-r from-blue-900/50 to-indigo-900/50 border border-blue-800/50 rounded-lg p-3"
+                                    :class="isToday(ev.hora_inicio) ? 'ring-2 ring-yellow-400/60' : ''"
+                                    :aria-label="'Cita el ' + dateTokens(ev.hora_inicio).full">
+                                    <div class="flex gap-3">
+                                        <!-- FECHA DESTACADA -->
+                                        <div class="w-16 sm:w-20 flex-shrink-0 rounded-lg bg-blue-900/70 border border-blue-700/50 shadow-inner
+                                        flex flex-col items-center justify-center py-2"
+                                            :class="isToday(ev.hora_inicio) ? 'bg-yellow-900/40 border-yellow-600/50' : ''"
+                                            :title="dateTokens(ev.hora_inicio).full">
+                                            <div class="text-[10px] tracking-wide"
+                                                :class="isToday(ev.hora_inicio) ? 'text-yellow-300' : 'text-blue-300'"
+                                                x-text="dateTokens(ev.hora_inicio).dow"></div>
+                                            <div class="text-2xl sm:text-3xl font-extrabold leading-none text-white"
+                                                x-text="dateTokens(ev.hora_inicio).day"></div>
+                                            <div class="text-[10px] font-semibold"
+                                                :class="isToday(ev.hora_inicio) ? 'text-yellow-200' : 'text-blue-200'"
+                                                x-text="dateTokens(ev.hora_inicio).mon"></div>
                                         </div>
 
-
-                                        <div class="text-xs opacity-90 flex items-center gap-1 mt-1">
-                                            <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <span x-text="rangeHour(ev.hora_inicio, ev.hora_fin)"></span>
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Vista semana - Lista móvil / Grid desktop -->
-                    <div x-show="mobileView === 'week'">
-                        <!-- Lista simplificada para móvil -->
-                        <div class="block sm:hidden">
-                            <div class="space-y-2">
-                                <template x-for="ev in week.eventos" :key="ev.id">
-                                    <div
-                                        class="bg-gradient-to-r from-blue-900/50 to-indigo-900/50 border border-blue-800/50 rounded-lg p-3">
-
-
-
-                                        <div class="flex justify-between items-start mb-2">
-                                            <div class="flex items-center gap-2">
-                                                <div class="font-semibold text-white"
-                                                    x-text="ev.cliente?.nombre || 'Cliente'"></div>
-                                                <span class="status-badge"
-                                                    :class="'status-' + (ev.estado || '').toLowerCase()"
-                                                    x-text="(ev.estado || '').charAt(0).toUpperCase() + (ev.estado || '').slice(1)">
-                                                </span>
-                                            </div>
-                                            <div class="text-xs text-gray-400"
-                                                x-text="formatMobileDate(ev.hora_inicio)"></div>
-                                        </div>
-
-
-                                        <div class="text-sm text-gray-300 flex items-center gap-2">
-                                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <span x-text="rangeHour(ev.hora_inicio, ev.hora_fin)"></span>
-                                        </div>
-
-
-                                        <div class="mt-3 flex gap-1.5">
-                                            <button
-                                                class="bg-green-600 hover:bg-green-700 text-white px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors inline-flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
-                                                @click.stop="markDone(ev.id)"
-                                                :disabled="['terminada', 'cancelada'].includes((ev.estado || '').toLowerCase())">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                                <span>Terminado</span>
-                                            </button>
-
-                                            <button
-                                                class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors inline-flex items-center justify-center gap-1.5"
-                                                @click.stop="openModal(ev.id)">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                </svg>
-                                                <span>Revisar</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </template>
-
-                                <template x-if="week.eventos.length === 0">
-                                    <div class="text-center py-8 text-gray-500">
-                                        <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                            </path>
-                                        </svg>
-                                        <p class="text-sm">No hay eventos esta semana</p>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-
-                        <!-- Grid completo para desktop -->
-                        <div class="hidden sm:block">
-                            <!-- Header días -->
-                            <div class="grid grid-cols-8 gap-0 mb-4 pb-4 border-b border-gray-700">
-                                <div class="text-sm font-medium text-gray-500"></div>
-                                <template x-for="(d,idx) in weekDays" :key="idx">
-                                    <div class="text-center">
-                                        <div class="text-sm font-medium text-gray-300 mb-2" x-text="d.short"></div>
-                                        <div class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold"
-                                            :class="d.isToday ? 'bg-blue-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300'"
-                                            x-text="d.day">
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
-
-                            <!-- Grid horarios -->
-                            <div class="grid grid-cols-8 gap-0 relative min-h-[600px]">
-                                <!-- Columna horas -->
-                                <div class="pr-4">
-                                    <template x-for="h in hoursGrid" :key="h">
-                                        <div class="time-slot flex items-start pt-2">
-                                            <span
-                                                class="text-xs font-medium text-gray-500 bg-gray-800 px-2 py-1 rounded"
-                                                x-text="h"></span>
-                                        </div>
-                                    </template>
-                                </div>
-
-                                <!-- Columnas días -->
-                                <template x-for="(d,dayIdx) in 7" :key="dayIdx">
-                                    <div class="day-column">
-                                        <template x-for="i in slotsPerDay" :key="i">
-                                            <div class="time-slot"></div>
-                                        </template>
-
-                                        <!-- Eventos -->
-                                        <template x-for="ev in positionedEvents.filter(e => e.dayIndex === dayIdx)"
-                                            :key="ev.id">
-                                            <div class="appointment-event"
-                                                :style="`top:${ev.top}px; height:${ev.height}px;`">
-
-                                                <div class="flex items-center gap-2">
-                                                    <div class="font-semibold truncate" x-text="ev.cliente"></div>
+                                        <!-- CONTENIDO -->
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-start justify-between gap-2 mb-2">
+                                                <div class="flex items-center gap-2 min-w-0">
+                                                    <div class="font-semibold text-white truncate"
+                                                        x-text="ev.cliente?.nombre || 'Cliente'"></div>
                                                     <span class="status-badge"
                                                         :class="'status-' + (ev.estado || '').toLowerCase()"
                                                         x-text="(ev.estado || '').charAt(0).toUpperCase() + (ev.estado || '').slice(1)">
                                                     </span>
                                                 </div>
+                                            </div>
 
-                                                <div class="text-xs opacity-90 flex items-center gap-1 mt-1">
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                            <div class="text-sm text-gray-300 flex items-center gap-2">
+                                                <svg class="w-4 h-4 flex-shrink-0" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                <span x-text="rangeHour(ev.hora_inicio, ev.hora_fin)"></span>
+                                            </div>
+
+                                            <div class="mt-3 flex flex-wrap gap-1.5">
+                                                <!-- Recordar por WhatsApp -->
+                                                <button
+                                                    class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors inline-flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+                                                    @click.stop="remindWhatsApp(ev)"
+                                                    :disabled="['terminada', 'cancelada'].includes((ev.estado || '').toLowerCase())"
+                                                    aria-label="Recordar por WhatsApp">
+                                                    <svg class="w-3.5 h-3.5" viewBox="0 0 32 32" aria-hidden="true">
+                                                        <path fill="currentColor"
+                                                            d="M16.01 5.6c-5.71 0-10.36 4.65-10.36 10.36 0 1.83.48 3.57 1.41 5.12l-1.5 5.49 5.64-1.47c1.5.82 3.2 1.25 4.93 1.25h.01c5.71 0 10.36-4.65 10.36-10.36s-4.65-10.39-10.36-10.39zm6.01 16.37c-.26.74-1.53 1.42-2.18 1.53-.57.09-1.32.12-2.13-.12-2.37-.75-3.9-1.71-5.63-3.33-1.18-1.08-2.1-2.34-2.73-3.69-.57-1.2-1.11-2.55-1.11-3.9 0-1.2.36-2.37 1.14-3.27.27-.33.75-.75 1.29-.75.15 0 .27 0 .39.03.12.03.3.03.45.72.18.84.63 2.28.69 2.46.06.18.09.42-.03.69-.12.27-.18.42-.36.63-.18.18-.39.42-.57.66-.18.21-.39.45-.18.84.21.39.93 1.53 2.01 2.49 1.38 1.23 2.49 1.62 2.88 1.83.39.18.63.15.84-.09.27-.3.96-1.11 1.23-1.5.27-.39.54-.33.9-.21.36.12 2.25 1.05 2.64 1.23.39.18.66.27.75.42.06.15.06.87-.21 1.62z" />
+                                                        <path fill="currentColor"
+                                                            d="M19.11 17.53c-.27-.15-1.59-.88-1.84-.98-.24-.09-.42-.15-.6.15-.18.27-.69.97-.84 1.17-.15.18-.3.21-.57.09-.27-.15-1.11-.42-2.11-1.35-.78-.69-1.29-1.53-1.44-1.8-.15-.27 0-.42.12-.57.12-.12.27-.3.39-.45.12-.15.15-.27.24-.45.09-.15.06-.33-.03-.48-.09-.15-.6-1.44-.84-1.98-.21-.51-.42-.42-.6-.42h-.51c-.18 0-.48.06-.72.33-.24.27-.93.9-.93 2.19s.96 2.55 1.11 2.73c.15.18 1.89 2.88 4.59 4.05.64.27 1.14.42 1.53.57.64.21 1.23.18 1.68.12.51-.09 1.59-.69 1.8-1.35.21-.66.21-1.23.15-1.35-.06-.12-.24-.18-.51-.33z" />
+                                                    </svg>
+                                                    <span>Recordar</span>
+                                                </button>
+
+                                                <!-- Terminado -->
+                                                <button
+                                                    class="bg-green-600 hover:bg-green-700 text-white px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors inline-flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+                                                    @click.stop="markDone(ev.id)"
+                                                    :disabled="['terminada', 'cancelada'].includes((ev.estado || '').toLowerCase())">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                    </svg>
+                                                    <span>Terminado</span>
+                                                </button>
+
+                                                <!-- Revisar -->
+                                                <button
+                                                    class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors inline-flex items-center justify-center gap-1.5"
+                                                    @click.stop="openModal(ev.id)">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
                                                         viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2"
-                                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
-                                                    <span x-text="rangeHour(ev.hora_inicio, ev.hora_fin)"></span>
-                                                </div>
-
-                                                <div class="mt-2 flex gap-1.5">
-                                                    <button
-                                                        class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-md text-[10px] font-semibold transition-colors inline-flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
-                                                        @click.stop="markDone(ev.id)"
-                                                        :disabled="['terminada', 'cancelada'].includes((ev.estado || '')
-                                                            .toLowerCase())">
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                        </svg>
-                                                        Terminado
-                                                    </button>
-
-                                                    <button
-                                                        class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-md text-[10px] font-semibold transition-colors inline-flex items-center gap-1.5"
-                                                        @click.stop="openModal(ev.id)">
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                        </svg>
-                                                        Revisar
-                                                    </button>
-                                                </div>
+                                                    <span>Revisar</span>
+                                                </button>
                                             </div>
-                                        </template>
+                                        </div>
                                     </div>
-                                </template>
-                            </div>
+                                </div>
+                            </template>
                         </div>
+
+                        <!-- Estado vacío -->
+                        <template x-if="filteredWeek.length === 0">
+                            <div class="text-center py-10 text-gray-500">
+                                <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                <p class="text-sm">No hay eventos para esta semana</p>
+                            </div>
+                        </template>
                     </div>
                 </div>
 
@@ -1069,6 +783,8 @@
                     </div>
                 </div>
             </section>
+
+
 
             <!-- Main Modal for Appointment Details -->
             <div x-cloak x-show="showModal" x-transition.opacity
@@ -1480,6 +1196,498 @@
                 </div>
             </div>
 
+
+            <!-- KPI Cards Section - Mobile optimized grid -->
+            <section class="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+
+
+                <!-- Citas y Clientes Card -->
+                <div class="dashboard-card kpi-card fade-in">
+                    <div class="grid grid-cols-2 gap-2 sm:gap-4">
+                        <div class="text-center">
+                            <div
+                                class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg gradient-blue flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                                <svg class="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div class="text-lg sm:text-xl font-bold text-white mb-1" x-text="kpi.citas_hoy"></div>
+                            <div class="text-xs text-gray-400">Citas Hoy</div>
+                        </div>
+                        <div class="text-center">
+                            <div
+                                class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg gradient-purple flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                                <svg class="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div class="text-lg sm:text-xl font-bold text-white mb-1" x-text="kpi.clientes_periodo">
+                            </div>
+                            <div class="text-xs text-gray-400">Clientes</div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-500 text-center mt-3" x-text="periodLabel"></div>
+                </div>
+
+                <!-- Clientes más frecuentes (pro) -->
+                <div class="dashboard-card kpi-card fade-in">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between mb-2 sm:mb-4">
+                        <div class="flex items-center gap-2">
+                            <span
+                                class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                                <!-- trophy -->
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4zM5 6h2a5 5 0 01-5 5V8a2 2 0 012-2zm14 0h2a2 2 0 012 2v3a5 5 0 01-5-5z" />
+                                </svg>
+                            </span>
+                            <div class="text-white font-semibold text-sm sm:text-base">Clientes más frecuentes</div>
+                        </div>
+                        <div class="text-[11px] sm:text-xs text-gray-400 flex items-center gap-2">
+                            <span class="hidden sm:inline" x-text="weekTitle"></span>
+                            <span
+                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-700/60 border border-slate-600/60">
+                                <svg class="w-3.5 h-3.5 text-slate-300" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14" />
+                                </svg>
+                                <span class="text-slate-300/90">Total:</span>
+                                <strong class="text-white" x-text="totalCitasSemana"></strong>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Empty state -->
+                    <template x-if="topClientesSemana.length === 0">
+                        <div class="text-xs sm:text-sm text-gray-400 flex items-center gap-2">
+                            <svg class="w-4 h-4 opacity-70" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14" />
+                            </svg>
+                            Sin datos esta semana
+                        </div>
+                    </template>
+
+                    <!-- List -->
+                    <div class="space-y-2" x-show="topClientesSemana.length">
+                        <template x-for="(c, idx) in topClientesSemana" :key="c.id ?? idx">
+                            <div
+                                class="rounded-lg border border-slate-600/40 bg-slate-800/40 p-3 hover:bg-slate-800/60 transition">
+                                <div class="flex items-center justify-between gap-3">
+                                    <!-- Left: rank + avatar + name -->
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <!-- Rank badge -->
+                                        <span
+                                            class="inline-flex h-6 w-6 items-center justify-center rounded-md border text-[11px] font-bold"
+                                            :class="[
+                                                idx === 0 ? 'bg-amber-500/15 text-amber-300 border-amber-400/30' :
+                                                idx === 1 ? 'bg-sky-500/15 text-sky-300 border-sky-400/30' :
+                                                'bg-violet-500/15 text-violet-300 border-violet-400/30'
+                                            ]"
+                                            x-text="idx+1">
+                                        </span>
+
+                                        <!-- Avatar inicial -->
+                                        <div
+                                            class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 text-white
+                     flex items-center justify-center text-xs sm:text-sm font-extrabold shadow-inner">
+                                            <span x-text="(c.nombre || 'C')[0]?.toUpperCase()"></span>
+                                        </div>
+
+                                        <!-- Name + meta -->
+                                        <div class="min-w-0">
+                                            <div class="text-white text-sm font-semibold truncate"
+                                                x-text="c.nombre || 'Cliente'"></div>
+                                            <div class="text-[11px] text-gray-400">
+                                                <span>x<span x-text="c.count"></span> citas</span>
+                                                <span class="mx-1.5 opacity-40">•</span>
+                                                <span>
+                                                    <span
+                                                        x-text="Math.round((c.count/Math.max(1,totalCitasSemana))*100)"></span>%
+                                                    del total
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Right: count pill -->
+                                    <div
+                                        class="shrink-0 inline-flex items-center gap-1 rounded-md border border-blue-400/30 bg-blue-500/10
+                   px-2 py-1 text-[11px] font-semibold text-blue-200">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14v7" />
+                                        </svg>
+                                        <span>x<span x-text="c.count"></span></span>
+                                    </div>
+                                </div>
+
+                                <!-- Progress bar -->
+                                <div class="mt-2">
+                                    <div class="w-full h-1.5 rounded-full bg-slate-700/60 overflow-hidden">
+                                        <div class="h-full rounded-full bg-gradient-to-r"
+                                            :class="idx === 0 ? 'from-emerald-400 to-emerald-500' :
+                                                idx === 1 ? 'from-sky-400 to-sky-500' :
+                                                'from-violet-400 to-violet-500'"
+                                            :style="`width: ${Math.round((c.count/Math.max(1,totalCitasSemana))*100)}%`">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+
+                <section class="lg:col-span-2 grid grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+                    <!-- Ingresos Netos Card -->
+                    <div class="dashboard-card kpi-card fade-in">
+                        <div class="flex items-center justify-between mb-2 sm:mb-4">
+                            <div class="flex items-center gap-2">
+                                <div
+                                    class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg gradient-green flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <span class="text-gray-300 font-medium text-sm sm:text-base truncate">Ingresos
+                                    Netos</span>
+                            </div>
+                        </div>
+
+                        <div class="kpi-value text-green-400 mb-2" x-text="money(kpi.neto)"></div>
+                        <div class="text-xs sm:text-sm text-gray-400" x-text="periodLabel"></div>
+                    </div>
+
+                    <!-- Descuentos Card -->
+                    <div class="dashboard-card kpi-card fade-in">
+                        <div class="flex items-center justify-between mb-2 sm:mb-4">
+                            <div class="flex items-center gap-2">
+                                <div
+                                    class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg gradient-red flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M20 12H4">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <span class="text-gray-300 font-medium text-sm sm:text-base truncate">Descuentos</span>
+                            </div>
+                        </div>
+
+                        <!-- total = desc_linea + desc_orden -->
+                        <div class="kpi-value text-red-400 mb-2" x-text="'-' + money(kpi.desc_total)"></div>
+
+                        <!-- breakdown -->
+                        <div class="text-xs sm:text-sm text-gray-400">
+                            <span class="mr-3">xServicios: <span x-text="money(kpi.desc_linea)"></span></span>
+                            <br>
+                            <span>General: <span x-text="money(kpi.desc_orden)"></span></span>
+                        </div>
+
+                        <!-- mismo pie de rango que en Ingresos Netos -->
+                        <div class="text-xs sm:text-sm text-gray-400 mt-1" x-text="periodLabel"></div>
+                    </div>
+
+                </section>
+
+
+
+
+
+            </section>
+
+            <!-- Chart de Ingresos -->
+            <div class="dashboard-card xl:col-span-3 fade-in">
+                <div class="flex items-center justify-between mb-3 sm:mb-4">
+                    <h3 class="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-green-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Ingresos
+                    </h3>
+
+                    <!-- Controles Desktop -->
+                    <div class="hidden sm:flex items-center gap-2">
+                        <!-- Rangos -->
+                        <div class="bg-gray-700 rounded-lg p-1">
+                            <button @click="setChartRange('day')"
+                                :class="chartRange === 'day' ? 'bg-blue-600 text-white' : 'text-gray-300'"
+                                class="px-2 py-1 rounded text-xs font-semibold">Día</button>
+                            <button @click="setChartRange('week')"
+                                :class="chartRange === 'week' ? 'bg-blue-600 text-white' : 'text-gray-300'"
+                                class="px-2 py-1 rounded text-xs font-semibold">Semana</button>
+                            <button @click="setChartRange('month')"
+                                :class="chartRange === 'month' ? 'bg-blue-600 text-white' : 'text-gray-300'"
+                                class="px-2 py-1 rounded text-xs font-semibold">Mes</button>
+                            <button @click="setChartRange('custom')"
+                                :class="chartRange === 'custom' ? 'bg-blue-600 text-white' : 'text-gray-300'"
+                                class="px-2 py-1 rounded text-xs font-semibold">Rango</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controles Móviles -->
+                <div class="sm:hidden flex items-center gap-2 mb-2">
+                    <div class="flex-1">
+                        <label class="sr-only">Rango</label>
+                        <select x-model="chartRange" @change="setChartRange(chartRange)"
+                            class="w-full h-10 rounded-md bg-gray-800 border border-gray-600 text-gray-100 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="day">Día</option>
+                            <option value="week">Semana</option>
+                            <option value="month">Mes</option>
+                            <option value="custom">Rango</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Etiqueta de periodo (del chart) -->
+                <div class="mb-2 text-xs sm:text-sm text-gray-400" x-text="chartLabel || periodLabel"></div>
+
+                <!-- Rango personalizado (UI mejorada) -->
+                <div x-show="chartRange==='custom'" x-cloak class="mb-3">
+                    <div class="rounded-xl border border-slate-600/50 bg-slate-800/60 p-3 sm:p-4 shadow-inner">
+                        <!-- Header -->
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-500/20 text-blue-300">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3M5 11h14M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2" />
+                                    </svg>
+                                </span>
+                                <div class="leading-tight">
+                                    <div class="font-semibold text-white text-sm sm:text-base">Rango personalizado
+                                    </div>
+                                    <div class="text-[12px] text-slate-400">Elige fechas o usa un preset</div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-1.5">
+                                <button
+                                    class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-700/80 hover:bg-slate-700 text-slate-200 border border-slate-600/60"
+                                    @click="[chartFrom, chartTo] = [chartTo, chartFrom]"
+                                    :disabled="!chartFrom || !chartTo" title="Intercambiar fechas">
+                                    ↔️
+                                </button>
+                                <button
+                                    class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white underline underline-offset-4"
+                                    @click="chartFrom=''; chartTo=''">
+                                    Limpiar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Inputs -->
+                        <div class="grid grid-cols-1 sm:grid-cols-5 gap-2 sm:gap-3">
+                            <label class="col-span-2">
+                                <span class="sr-only">Desde</span>
+                                <div
+                                    class="flex items-center gap-2 rounded-lg bg-gray-900/60 border border-gray-700 px-3 h-11">
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0" />
+                                    </svg>
+                                    <input type="date" x-model="chartFrom"
+                                        class="w-full bg-transparent text-gray-100 placeholder-slate-400 focus:outline-none">
+                                </div>
+                            </label>
+
+                            <label class="col-span-2">
+                                <span class="sr-only">Hasta</span>
+                                <div
+                                    class="flex items-center gap-2 rounded-lg bg-gray-900/60 border border-gray-700 px-3 h-11">
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0" />
+                                    </svg>
+                                    <input type="date" x-model="chartTo"
+                                        class="w-full bg-transparent text-gray-100 placeholder-slate-400 focus:outline-none">
+                                </div>
+                            </label>
+
+                            <div class="col-span-1 flex">
+                                <button class="btn-primary w-full h-11" @click="applyCustomRange()"
+                                    :disabled="!chartFrom || !chartTo || new Date(chartFrom) > new Date(chartTo)">
+                                    Aplicar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Error / ayuda -->
+                        <p x-show="chartFrom && chartTo && new Date(chartFrom) > new Date(chartTo)"
+                            class="mt-2 text-xs font-medium text-amber-300 bg-amber-900/30 border border-amber-700/40 rounded-lg px-3 py-2">
+                            La fecha <strong>Desde</strong> no puede ser mayor que <strong>Hasta</strong>.
+                        </p>
+
+                        <!-- Presets -->
+                        <div class="mt-3 flex flex-wrap items-center gap-1.5">
+                            <span class="text-[11px] text-slate-400 mr-1.5">Rápidos:</span>
+
+                            <button
+                                class="px-2.5 py-1.5 rounded-full text-[11px] font-semibold bg-slate-700/70 hover:bg-slate-700 text-slate-200 border border-slate-600/60"
+                                @click="
+            (()=>{ 
+              const t=new Date(); const d=new Date(t); d.setDate(t.getDate()-6);
+              chartFrom = d.toISOString().slice(0,10); chartTo = t.toISOString().slice(0,10);
+              applyCustomRange();
+            })()
+          ">
+                                Últimos 7 días
+                            </button>
+
+                            <button
+                                class="px-2.5 py-1.5 rounded-full text-[11px] font-semibold bg-slate-700/70 hover:bg-slate-700 text-slate-200 border border-slate-600/60"
+                                @click="
+            (()=>{ 
+              const t=new Date();
+              const start=new Date(t.getFullYear(), t.getMonth(), 1);
+              const end=new Date(t.getFullYear(), t.getMonth()+1, 0);
+              chartFrom = start.toISOString().slice(0,10); chartTo = end.toISOString().slice(0,10);
+              applyCustomRange();
+            })()
+          ">
+                                Este mes
+                            </button>
+
+                            <button
+                                class="px-2.5 py-1.5 rounded-full text-[11px] font-semibold bg-slate-700/70 hover:bg-slate-700 text-slate-200 border border-slate-600/60"
+                                @click="
+            (()=>{ 
+              const t=new Date(); const d=new Date(t); d.setDate(t.getDate()-29);
+              chartFrom = d.toISOString().slice(0,10); chartTo = t.toISOString().slice(0,10);
+              applyCustomRange();
+            })()
+          ">
+                                Últimos 30 días
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="chartIngresos"></canvas>
+                </div>
+
+                <br>
+                <!-- Totales del rango actual (estilo pro) -->
+                <div class="mb-3 sm:mb-4 grid grid-cols-2 gap-2 sm:gap-4">
+                    <!-- Ingresos Netos -->
+                    <div
+                        class="group relative overflow-hidden rounded-xl border border-emerald-400/20 bg-gradient-to-br from-emerald-900/20 via-slate-900/30 to-slate-900/10 backdrop-blur-sm px-3 py-3 sm:px-4 sm:py-4 transition-all hover:shadow-lg hover:-translate-y-0.5">
+                        <!-- Glow decorativo -->
+                        <span
+                            class="pointer-events-none absolute -top-12 -right-12 h-28 w-28 rounded-full bg-emerald-500/10 blur-2xl"></span>
+
+                        <div class="flex items-start justify-between">
+                            <div class="space-y-0.5">
+                                <div class="inline-flex items-center gap-1.5">
+                                    <span
+                                        class="text-[11px] sm:text-xs font-semibold tracking-wide text-emerald-300/90 uppercase">
+                                        Ingresos netos
+                                    </span>
+                                    <span
+                                        class="px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-400/10 text-emerald-200 border border-emerald-400/20">
+                                        MXN
+                                    </span>
+                                </div>
+                                <div class="text-[11px] sm:text-xs text-slate-300/70"
+                                    x-text="chartLabel || periodLabel"></div>
+                            </div>
+
+                            <div
+                                class="shrink-0 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/15 border border-emerald-400/20">
+                                <svg class="w-4 h-4 text-emerald-300" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 17l6-6 4 4 7-7M14 7h7v7" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="mt-2 sm:mt-3">
+                            <div class="text-xl sm:text-2xl font-extrabold tracking-tight text-emerald-200"
+                                x-text="money(chartTotals.neto)"></div>
+                        </div>
+
+                        <div class="mt-2 border-t border-emerald-400/10 pt-2">
+                            <span class="text-[11px] sm:text-xs text-slate-300/70">Total del periodo
+                                seleccionado</span>
+                        </div>
+                    </div>
+
+                    <!-- Descuentos -->
+                    <div
+                        class="group relative overflow-hidden rounded-xl border border-rose-400/20 bg-gradient-to-br from-rose-900/20 via-slate-900/30 to-slate-900/10 backdrop-blur-sm px-3 py-3 sm:px-4 sm:py-4 transition-all hover:shadow-lg hover:-translate-y-0.5">
+                        <!-- Glow decorativo -->
+                        <span
+                            class="pointer-events-none absolute -top-12 -right-12 h-28 w-28 rounded-full bg-rose-500/10 blur-2xl"></span>
+
+                        <div class="flex items-start justify-between">
+                            <div class="space-y-0.5">
+                                <div class="inline-flex items-center gap-1.5">
+                                    <span
+                                        class="text-[11px] sm:text-xs font-semibold tracking-wide text-rose-300/90 uppercase">
+                                        Descuentos
+                                    </span>
+                                    <span
+                                        class="px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-rose-400/10 text-rose-200 border border-rose-400/20">
+                                        MXN
+                                    </span>
+                                </div>
+                                <div class="text-[11px] sm:text-xs text-slate-300/70"
+                                    x-text="chartLabel || periodLabel"></div>
+                            </div>
+
+                            <div
+                                class="shrink-0 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500/15 border border-rose-400/20">
+                                <svg class="w-4 h-4 text-rose-300" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M20 12H4M12 4v16" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="mt-2 sm:mt-3">
+                            <div class="text-xl sm:text-2xl font-extrabold tracking-tight text-rose-200"
+                                x-text="'-' + money(chartTotals.descuentos)"></div>
+                        </div>
+
+                        <div class="mt-2 border-t border-rose-400/10 pt-2">
+                            <span class="text-[11px] sm:text-xs text-slate-300/70">Total aplicado en el periodo</span>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+
+
+
+
+
+
             <!-- Onboarding: Primeros pasos (solo si no hay empleados NI servicios) -->
             <div x-cloak x-show="showFirstStepsModal" x-transition.opacity
                 class="fixed inset-0 z-[200] flex items-center justify-center p-4">
@@ -1499,7 +1707,7 @@
                     </div>
 
                     <div class="p-6 space-y-4">
-                        
+
 
                         <div class="flex items-start gap-3">
                             <div class="shrink-0 w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
@@ -1633,9 +1841,22 @@
                     },
 
                     /* ====== UI helpers ====== */
-                    periodLabel() {
+                    get periodLabel() {
                         return `${this.formatDate(this.period.from)} → ${this.formatDate(this.period.to)}`;
                     },
+
+                    get chartTotals() {
+                        // Suma lo que está actualmente en la serie del chart (día/semana/mes/rango)
+                        const arr = Array.isArray(this.series) ? this.series : [];
+                        const neto = arr.reduce((acc, it) => acc + (Number(it.neto) || 0), 0);
+                        const descuentos = arr.reduce((acc, it) => acc + (Number(it.descuentos) || 0), 0);
+                        return {
+                            neto,
+                            descuentos
+                        };
+                    },
+
+
                     money(v) {
                         return new Intl.NumberFormat('es-MX', {
                             style: 'currency',
@@ -1679,6 +1900,92 @@
                             timeZone: this.tz
                         }).format(new Date());
                     },
+
+                    /* ====== Recordatorios WhatsApp (usando cliente.telefono) ====== */
+                    remindWhatsApp(cita) {
+                        if (!cita) return;
+
+                        // 1) intenta con lo que ya viene en la tarjeta
+                        let phone = this._waPhoneFrom(cita);
+
+                        // 2) fallback: intenta con el detalle si no vino en la tarjeta
+                        const tryDetail = async () => {
+                            if (phone) return phone;
+                            const det = await this.fetchCitaDetalle(cita.id); // esta función devolverá la cita
+                            if (det) phone = this._waPhoneFrom(det);
+                            return phone;
+                        };
+
+                        Promise.resolve(tryDetail()).then((p) => {
+                            if (!p) {
+                                alert('No encuentro un número de WhatsApp para este cliente.');
+                                return;
+                            }
+                            const url = this._waBuildLink(cita, p);
+                            window.open(url, '_blank', 'noopener,noreferrer');
+                        });
+                    },
+
+                    _waPhoneFrom(cita) {
+                        // Tu BD: clientes solo tiene "telefono"
+                        const raw =
+                            cita?.cliente?.telefono ??
+                            cita?.telefono ?? // por si tu /app/citas/lista lo trae plano
+                            ''; // compat: si luego agregas whatsapp/celular, puedes sumarlos aquí
+
+                        const digits = String(raw).replace(/\D/g, '');
+                        if (!digits) return '';
+
+                        let msisdn = digits;
+
+                        // Normaliza MX moderno:
+                        // - "521..." -> "52" + resto
+                        if (msisdn.startsWith('521') && msisdn.length >= 13) {
+                            msisdn = '52' + msisdn.slice(3);
+                        }
+
+                        // - si empieza con 52 lo dejamos
+                        // - si son 10 dígitos, anteponemos 52
+                        if (msisdn.startsWith('52')) {
+                            // ok
+                        } else if (msisdn.length === 10) {
+                            msisdn = '52' + msisdn;
+                        }
+
+                        // Evita números demasiado cortos
+                        if (msisdn.length < 11) return '';
+                        return msisdn;
+                    },
+
+                    _waBuildLink(cita, phone) {
+                        const nombre = (cita?.cliente?.nombre || 'cliente').trim();
+
+                        // Fecha “bonita”
+                        const d = this.naiveToDate(cita?.hora_inicio);
+                        const fechaFmt = isNaN(d) ? '' : new Intl.DateTimeFormat('es-MX', {
+                            weekday: 'long',
+                            day: 'numeric',
+                            month: 'long',
+                            timeZone: this.tz
+                        }).format(d);
+
+                        // Rango horario con helper existente
+                        const rango = this.rangeHour(cita?.hora_inicio, cita?.hora_fin);
+
+                        const msg =
+                            `¡Hola ${nombre}! 👋\n` +
+                            `🔔 *Recordatorio de cita*\n` +
+                            `📅 *Fecha:* ${fechaFmt}\n` +
+                            `🕒 *Horario:* ${rango}\n\n` +
+                            `Llegar con 10 minutos de anticipación de lo contrario su cita será cancelada. Gracias.\n\n` +
+                            `Si necesitas reprogramar, avísanos por aquí 🔁\n` +
+                            `Por favor confirma con un 👍. ¡Gracias! 🙌`;
+
+                        return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+
+
+                    },
+
 
                     /* Función auxiliar para móvil */
                     formatMobileDate(dateStr) {
@@ -1790,6 +2097,135 @@
                         });
                     },
 
+                    /* ====== Chart (navegación por fechas) ====== */
+                    chart: null,
+                    chartRange: 'week', // 'day' | 'week' | 'month' | 'custom'
+                    chartAnchor: '', // YYYY-MM-DD (pivote para day/week/month)
+                    chartFrom: '', // para range personalizado
+                    chartTo: '',
+                    chartPeriod: {
+                        from: '',
+                        to: ''
+                    }, // periodo usado por el chart
+
+                    get chartLabel() {
+                        const f = this.chartPeriod?.from || '';
+                        const t = this.chartPeriod?.to || '';
+                        if (!f && !t) return '';
+                        const F = this.formatDate(f);
+                        const T = this.formatDate(t);
+                        return (F && T) ? `${F} — ${T}` : (F || T);
+                    },
+
+                    setChartRange(r) {
+                        this.chartRange = r;
+                        if (r === 'custom') return; // espera a que el usuario elija fechas y presione "Aplicar"
+                        this.chartAnchor = this.todayIso();
+                        this.fetchChart();
+                    },
+
+                    chartToday() {
+                        if (this.chartRange === 'custom') return;
+                        this.chartAnchor = this.todayIso();
+                        this.fetchChart();
+                    },
+
+                    chartPrev() {
+                        if (this.chartRange === 'custom') return;
+                        const base = this.chartPeriod?.from || this.chartAnchor || this.todayIso();
+                        let d = new Date(base + 'T00:00:00');
+                        if (this.chartRange === 'day') d.setDate(d.getDate() - 1);
+                        if (this.chartRange === 'week') d.setDate(d.getDate() - 7);
+                        if (this.chartRange === 'month') d.setMonth(d.getMonth() - 1);
+                        this.chartAnchor = d.toISOString().slice(0, 10);
+                        this.fetchChart();
+                    },
+
+                    chartNext() {
+                        if (this.chartRange === 'custom') return;
+                        const base = this.chartPeriod?.from || this.chartAnchor || this.todayIso();
+                        let d = new Date(base + 'T00:00:00');
+                        if (this.chartRange === 'day') d.setDate(d.getDate() + 1);
+                        if (this.chartRange === 'week') d.setDate(d.getDate() + 7);
+                        if (this.chartRange === 'month') d.setMonth(d.getMonth() + 1);
+                        this.chartAnchor = d.toISOString().slice(0, 10);
+                        this.fetchChart();
+                    },
+
+                    applyCustomRange() {
+                        if (!this.chartFrom || !this.chartTo) return;
+                        // normaliza por si el usuario invierte el orden
+                        const a = this.chartFrom <= this.chartTo ? this.chartFrom : this.chartTo;
+                        const b = this.chartFrom <= this.chartTo ? this.chartTo : this.chartFrom;
+                        this.chartFrom = a;
+                        this.chartTo = b;
+                        this.fetchChart();
+                    },
+
+                    todayIso() {
+                        const d = new Date();
+                        const m = String(d.getMonth() + 1).padStart(2, '0');
+                        const day = String(d.getDate()).padStart(2, '0');
+                        return `${d.getFullYear()}-${m}-${day}`;
+                    },
+
+                    async fetchChart() {
+                        // Reusa tu endpoint existente del dashboard, mandando parámetros de rango.
+                        // Soporta los anchors que ya tienes (ej: week_anchor). Si tu backend acepta
+                        // 'day'/'month'/'custom', quedará plug&play.
+
+                        const q = new URLSearchParams();
+                        q.set('range', this.chartRange);
+
+                        if (this.chartRange === 'custom') {
+                            if (this.chartFrom) q.set('from', this.chartFrom);
+                            if (this.chartTo) q.set('to', this.chartTo);
+                        } else if (this.chartAnchor) {
+                            const anchorParam =
+                                this.chartRange === 'week' ? 'week_anchor' :
+                                this.chartRange === 'day' ? 'day_anchor' :
+                                this.chartRange === 'month' ? 'month_anchor' : 'anchor';
+                            q.set(anchorParam, this.chartAnchor);
+                        }
+
+                        try {
+                            const r = await fetch('/app/dashboard/data?' + q.toString(), {
+                                headers: {
+                                    'Accept': 'application/json'
+                                }
+                            });
+                            const d = await r.json();
+
+                            // Actualiza SOLO los datos del chart y su periodo (no tocamos la agenda semanal)
+                            const list = d?.series?.ingresos_por_dia || d?.series || [];
+                            this.series = Array.isArray(list) ? list : [];
+
+                            // Si el backend devuelve el periodo del rango pedido, úsalo para la etiqueta:
+                            if (d?.period?.from || d?.period?.to) {
+                                this.chartPeriod = {
+                                    from: d.period.from || '',
+                                    to: d.period.to || ''
+                                };
+                            } else {
+                                // Fallback: si no vino periodo, infiere de la serie
+                                if (this.series.length) {
+                                    const first = this.series[0]?.date;
+                                    const last = this.series[this.series.length - 1]?.date;
+                                    this.chartPeriod = {
+                                        from: first || '',
+                                        to: last || ''
+                                    };
+                                }
+                            }
+
+                            await this.$nextTick();
+                            this.drawChart();
+                        } catch (e) {
+                            console.error('fetchChart error', e);
+                        }
+                    },
+
+
                     /* ====== Agenda semanal ====== */
                     gridStart: '08:00',
                     gridEnd: '19:00',
@@ -1850,9 +2286,14 @@
                                 relativeTop,
                                 hora_inicio: ev.hora_inicio,
                                 hora_fin: ev.hora_fin,
-                                cliente: ev.cliente?.nombre || 'Cliente',
-                                estado: ev.estado || 'pendiente' // ← importante
+                                cliente: {
+                                    id: ev.cliente?.id ?? null,
+                                    nombre: ev.cliente?.nombre || 'Cliente',
+                                    telefono: ev.cliente?.telefono || ev.telefono || ''
+                                },
+                                estado: ev.estado || 'pendiente'
                             });
+
 
                         }
                         return res;
@@ -2040,11 +2481,18 @@
                     },
 
                     async fetchCitaDetalle(id) {
-                        const r = await fetch('/app/citas/lista');
+                        const r = await fetch('/app/citas/lista', {
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        });
                         const d = await r.json();
                         const found = (d.citas || []).find(x => x.id === id);
+
                         if (found) {
                             this.citaSel = found;
+
+                            // Calcula totales si no vienen
                             if (!this.citaSel.totales) {
                                 let base = 0,
                                     descLineas = 0;
@@ -2064,7 +2512,11 @@
                                 };
                             }
                         }
+
+                        // IMPORTANTE: devolver la cita para que el fallback de WhatsApp pueda usarla
+                        return found || null;
                     },
+
 
                     totalMinsCita(cita) {
                         let mins = 0;
@@ -2083,6 +2535,7 @@
                         const em = String(end.getMinutes()).padStart(2, '0');
                         this.reprog.hora_fin = `${eh}:${em}`;
                     },
+
 
                     /* ====== Acciones ====== */
                     async markDone(id) {

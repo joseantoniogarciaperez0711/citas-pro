@@ -118,7 +118,7 @@ class DashboardController extends Controller
         // Series por día (ingresos/desc) en el período
         $serie = $this->bucketByDay($citasPeriodo, $from, $to);
 
-        // Próximas de hoy (ordenadas) ------------- AQUI se incluye 'estado'
+        // Próximas de hoy (ordenadas)
         [$todayStart, $todayEnd] = [$now->copy()->startOfDay(), $now->copy()->endOfDay()];
         $hoy = DB::table('citas as ci')
             ->leftJoin('clientes as cl', 'cl.id', '=', 'ci.cliente_id')
@@ -129,8 +129,9 @@ class DashboardController extends Controller
                 'ci.id',
                 'ci.hora_inicio',
                 'ci.hora_fin',
-                'ci.estado', // 👈 se mantiene
-                'cl.nombre as cliente_nombre'
+                'ci.estado',
+                'cl.nombre as cliente_nombre',
+                'cl.telefono as cliente_telefono' // 👈 AÑADIDO
             )
             ->get()
             ->map(function ($r) {
@@ -138,11 +139,15 @@ class DashboardController extends Controller
                     'id'           => (int) $r->id,
                     'hora_inicio'  => (string) $r->hora_inicio,
                     'hora_fin'     => (string) $r->hora_fin,
-                    'estado'       => (string) $r->estado, // 👈 se mantiene
-                    'cliente'      => ['nombre' => $r->cliente_nombre ?: 'Cliente'],
+                    'estado'       => (string) $r->estado,
+                    'cliente'      => [
+                        'nombre'   => $r->cliente_nombre ?: 'Cliente',
+                        'telefono' => $r->cliente_telefono, // 👈 AÑADIDO
+                    ],
                 ];
             })
             ->values();
+
 
         $kpi['citasHoy'] = $hoy->count();
 
@@ -162,11 +167,13 @@ class DashboardController extends Controller
                 'ci.id',
                 'ci.hora_inicio',
                 'ci.hora_fin',
-                'ci.estado', // 👈 disponible si lo quieres usar en el grid
+                'ci.estado',
                 'cl.id as cliente_id',
-                'cl.nombre as cliente_nombre'
+                'cl.nombre as cliente_nombre',
+                'cl.telefono as cliente_telefono' // 👈 AÑADIDO
             )
             ->get();
+
 
         // minutos bloqueados y capacidad semanal
         $bookedMinutes = $this->bookedMinutes($weekCitas, $userId);
@@ -206,10 +213,11 @@ class DashboardController extends Controller
                     'id'          => (int) $c->id,
                     'hora_inicio' => (string) $c->hora_inicio,
                     'hora_fin'    => (string) $c->hora_fin,
-                    'estado'      => (string) $c->estado, // 👈 se mantiene
+                    'estado'      => (string) $c->estado,
                     'cliente'     => [
-                        'id'     => (int) $c->cliente_id,
-                        'nombre' => $c->cliente_nombre ?: 'Cliente'
+                        'id'       => (int) $c->cliente_id,
+                        'nombre'   => $c->cliente_nombre ?: 'Cliente',
+                        'telefono' => $c->cliente_telefono, // 👈 AÑADIDO
                     ],
                 ])->values(),
             ],

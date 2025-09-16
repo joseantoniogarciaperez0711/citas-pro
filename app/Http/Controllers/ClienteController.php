@@ -31,6 +31,11 @@ class ClienteController extends Controller
             'activo'   => 'boolean',
         ]);
 
+        // Limpiar espacios del teléfono
+        if (!empty($data['telefono'])) {
+            $data['telefono'] = preg_replace('/\s+/', '', $data['telefono']);
+        }
+
         $cliente = Cliente::create([
             'usuario_id' => $userId,
             'nombre'     => $data['nombre'],
@@ -58,6 +63,11 @@ class ClienteController extends Controller
             'activo'   => 'boolean',
         ]);
 
+        // Limpiar espacios del teléfono
+        if (!empty($data['telefono'])) {
+            $data['telefono'] = preg_replace('/\s+/', '', $data['telefono']);
+        }
+
         $cliente->update([
             'nombre'   => $data['nombre'],
             'telefono' => $data['telefono'] ?? $cliente->telefono,
@@ -70,7 +80,6 @@ class ClienteController extends Controller
 
         return response()->json(['message' => 'Cliente actualizado', 'cliente' => $cliente], 200);
     }
-
     // Desactiva (no borra)
     public function destroy(Cliente $cliente)
     {

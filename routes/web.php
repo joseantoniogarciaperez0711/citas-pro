@@ -73,6 +73,9 @@ Route::middleware(['auth', 'verified'])
         Route::delete('/empleados/{empleado}', [EmpleadoController::class, 'destroy'])->name('empleados.destroy');
         Route::put('/empleados/{empleado}/activar', [EmpleadoController::class, 'restore'])
             ->name('empleados.restore');
+        Route::get('/empleados/{empleado}/historial', [CitaController::class, 'porEmpleado'])
+            ->name('empleados.historial');
+
 
 
         //CLIENTES

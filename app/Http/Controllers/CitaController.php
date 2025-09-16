@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+
 
 class CitaController extends Controller
 {
@@ -247,6 +249,89 @@ class CitaController extends Controller
 
         return response()->json(['citas' => $out], 200);
     }
+
+    public function porEmpleado(Empleado $empleado)
+    {
+        try {
+            $userId = Auth::id();
+
+            // Seguridad: el empleado debe pertenecer al usuario
+            if ($empleado->usuario_id !== $userId) {
+                return response()->json(['error' => 'No autorizado'], 403);
+            }
+
+            $empleadoId = (int) $empleado->id;
+            $tz = 'America/Mexico_City';
+
+            // Trae citas del empleado vía pivot (cita_servicio) y ordena por hora_inicio
+            $citas = $empleado->citas()
+                ->where('citas.usuario_id', $userId)
+                ->orderByDesc('hora_inicio')
+                ->get(['citas.id', 'citas.usuario_id', 'citas.cliente_id', 'citas.hora_inicio', 'citas.hora_fin', 'citas.estado', 'citas.notas', 'citas.descuento', 'citas.total_snapshot']);
+
+            // Mapear SOLO items del empleado
+            $out = $citas->map(function (Cita $c) use ($empleadoId, $tz) {
+                $itemsEmpleado = $c->items->filter(fn($it) => (int)$it->empleado_id === $empleadoId);
+
+                $base = 0;
+                $descLineas = 0;
+                $mins = 0;
+
+                foreach ($itemsEmpleado as $it) {
+                    $base       += (int)$it->precio_servicio_snapshot * max(1, (int)$it->cantidad);
+                    $descLineas += (int)$it->descuento;
+                    $mins       += (int)$it->duracion_minutos_snapshot * max(1, (int)$it->cantidad);
+                }
+
+                $subtotal  = max(0, $base - $descLineas);
+                // si quieres mantener descuento general de la cita, puedes prorratear; por simplicidad lo excluimos del total del empleado
+                $descOrden = 0;
+                $neto      = max(0, $subtotal - $descOrden);
+
+                $start = Carbon::parse($c->hora_inicio, $tz);
+                $end   = $c->hora_fin ? Carbon::parse($c->hora_fin, $tz) : (clone $start)->addMinutes($mins);
+                $mins  = max($mins, $end->diffInMinutes($start));
+
+                $durH = intdiv($mins, 60);
+                $durM = $mins % 60;
+                $durLabel = ($durH ? "{$durH}h " : '') . "{$durM}m";
+
+                return [
+                    'id'             => (int)$c->id,
+                    'estado'         => (string)$c->estado,
+                    'notas'          => (string)($c->notas ?? ''),
+                    'fecha_larga'    => $start->isoFormat('ddd, DD MMM YYYY'),
+                    'hora_rango'     => $start->isoFormat('HH:mm') . ' – ' . $end->isoFormat('HH:mm'),
+                    'duracion_label' => $durLabel,
+                    'items' => $itemsEmpleado->map(function ($it) {
+                        return [
+                            'id'                        => (int)$it->id,
+                            'nombre_snapshot'           => $it->nombre_servicio_snapshot,
+                            'precio_snapshot'           => (int)$it->precio_servicio_snapshot,
+                            'duracion_minutos_snapshot' => (int)$it->duracion_minutos_snapshot,
+                            'cantidad'                  => (int)$it->cantidad,
+                            'descuento'                 => (int)$it->descuento,
+                            'empleado_nombre'           => optional($it->empleado)->nombre,
+                        ];
+                    })->values(),
+                    'totales' => [
+                        'bruto'       => (int)$base,
+                        'desc_lineas' => (int)$descLineas,
+                        'subtotal'    => (int)$subtotal,
+                        'desc_orden'  => (int)$descOrden,
+                        'neto'        => (int)$neto,
+                    ],
+                ];
+            })->values();
+
+            return response()->json(['historial' => $out], 200);
+        } catch (\Throwable $e) {
+            Log::error('porEmpleado error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json(['error' => 'Error interno'], 500);
+        }
+    }
+
+
 
     public function update(Request $request, \App\Models\Cita $cita)
     {

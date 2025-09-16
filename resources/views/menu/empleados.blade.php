@@ -167,21 +167,33 @@
                                     </button>
                                 </template>
 
-                                <!-- Si está activo, mostrar Editar / Eliminar (desactivar) -->
-                                <template x-if="emp.activo">
-                                    <div class="flex gap-2 w-full">
-                                        <button @click="editEmployee(emp)"
-                                            class="flex-1 bg-gray-800 hover:bg-gray-900 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors">
-                                            Editar
-                                        </button>
-                                        <button @click="deleteEmployee(emp)"
-                                            class="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-sm transition-colors">
-                                            Eliminar
-                                        </button>
-                                    </div>
-                                </template>
+                                <div class="flex gap-2">
+                                    <!-- Botón Historial (nuevo) -->
+                                    <button @click="openHistoryEmp(emp)"
+                                        class="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs sm:text-sm font-medium transition-colors">
+                                        <!-- ícono similar al cliente -->
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span>Historial</span>
+                                    </button>
+
+                                    <!-- Si está activo, mostrar Editar / Eliminar (desactivar) -->
+                                    <template x-if="emp.activo">
+                                        <div class="flex gap-2 w-full">
+                                            <button @click="editEmployee(emp)"
+                                                class="flex-1 bg-gray-800 hover:bg-gray-900 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                                                Editar
+                                            </button>
+                                            <button @click="deleteEmployee(emp)"
+                                                class="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-sm transition-colors">
+                                                Eliminar
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
                             </div>
-                        </div>
                     </template>
                 </div>
 
@@ -207,6 +219,248 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Modal Historial Empleado -->
+                <div x-show="showHistoryEmp" x-cloak class="fixed inset-0 z-50 flex items-end">
+                    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closeHistoryEmp()"
+                        x-transition:enter="transition ease-out duration-400" x-transition:enter-start="opacity-0"
+                        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+                        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+                    <div class="relative w-full bg-white shadow-2xl max-h-[94vh] flex flex-col rounded-t-[2rem] sm:rounded-t-3xl sm:max-w-5xl sm:mx-auto sm:mb-6 sm:max-h-[88vh] overflow-hidden"
+                        x-transition:enter="transition ease-out duration-400"
+                        x-transition:enter-start="transform translate-y-full opacity-0"
+                        x-transition:enter-end="transform translate-y-0 opacity-100"
+                        x-transition:leave="transition ease-in duration-250"
+                        x-transition:leave-start="transform translate-y-0 opacity-100"
+                        x-transition:leave-end="transform translate-y-full opacity-0">
+
+                        <!-- Header del modal -->
+                        <div class="flex justify-center pt-4 pb-2 sm:hidden">
+                            <div class="w-12 h-1 bg-gray-300 rounded-full"></div>
+                        </div>
+                        <div
+                            class="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-200 px-5 py-5 sm:px-7 sm:py-6 z-20 flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Historial de Empleado</h2>
+                                    <p class="text-sm font-medium text-gray-600">
+                                        <span x-text="historyEmployee?.nombre || 'Empleado'"></span>
+                                    </p>
+                                </div>
+                            </div>
+                            <button @click="closeHistoryEmp()"
+                                class="p-3 rounded-xl bg-gray-100 hover:bg-gray-200 active:scale-95 transition-all duration-200">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Contenido del historial (idéntico al de clientes) -->
+                        <div class="flex-1 overflow-y-auto px-5 pb-6 sm:px-7 sm:pb-8 scroll-smooth">
+                            <template x-if="historyLoadingEmp">
+                                <div class="flex flex-col items-center justify-center py-16">
+                                    <div
+                                        class="w-8 h-8 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin mb-4">
+                                    </div>
+                                    <p class="text-gray-600 font-medium">Cargando historial...</p>
+                                </div>
+                            </template>
+                            <template x-if="!historyLoadingEmp && historyEmp.length === 0">
+                                <div class="text-center py-20">
+                                    <div
+                                        class="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                        <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Sin historial registrado</h3>
+                                    <p class="text-gray-500 max-w-sm mx-auto">Este empleado no tiene registros aún. El
+                                        historial aparecerá aquí una vez esté disponible.</p>
+                                </div>
+                            </template>
+                            <div class="space-y-4 mt-4" x-show="!historyLoadingEmp && historyEmp.length">
+                                <template x-for="(record, index) in historyEmp" :key="record.id">
+                                    <div
+                                        class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg border border-gray-200 transition-all duration-300 hover:border-gray-300">
+                                        <button @click="toggleEmp(record.id)"
+                                            class="w-full p-5 sm:p-6 hover:bg-gray-50 transition-colors duration-200 text-left">
+                                            <div class="flex items-start gap-4">
+                                                <div class="flex-shrink-0 mt-2">
+                                                    <div class="w-3 h-3 rounded-full"
+                                                        :class="record.estado === 'completada' ? 'bg-green-500' :
+                                                            (record.estado === 'cancelada' ? 'bg-red-500' :
+                                                                'bg-blue-500')">
+                                                    </div>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <h3 class="font-semibold text-gray-900 text-lg mb-2 leading-tight"
+                                                        x-text="record.fecha_larga"></h3>
+                                                    <div
+                                                        class="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
+                                                        <span class="flex items-center gap-2">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                            <span x-text="record.hora_rango"></span>
+                                                        </span>
+                                                        <span class="flex items-center gap-2">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                            </svg>
+                                                            <span x-text="record.duracion_label"></span>
+                                                        </span>
+                                                    </div>
+                                                    <div class="flex items-center justify-between">
+                                                        <span
+                                                            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+                                                            :class="record.estado === 'completada' ?
+                                                                'bg-green-100 text-green-800' :
+                                                                (record.estado === 'cancelada' ?
+                                                                    'bg-red-100 text-red-800' :
+                                                                    'bg-blue-100 text-blue-800')"
+                                                            x-text="record.estado.charAt(0).toUpperCase() + record.estado.slice(1)"></span>
+                                                        <div class="text-right">
+                                                            <div class="text-xl font-bold text-gray-900"
+                                                                x-text="money(record.neto)"></div>
+                                                            <div class="text-xs text-gray-500">Total</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-shrink-0 mt-2">
+                                                    <svg :class="expandedEmp[record.id] ? 'rotate-180' : ''"
+                                                        class="w-5 h-5 text-gray-400 transition-transform duration-200"
+                                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </button>
+                                        <div x-show="expandedEmp[record.id]" x-collapse>
+                                            <div class="px-5 py-5 sm:px-6 sm:py-6 bg-gray-50 border-t border-gray-200">
+
+                                                <!-- Servicios -->
+                                                <div class="mb-6">
+                                                    <h4
+                                                        class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">
+                                                        Servicios Realizados
+                                                    </h4>
+                                                    <div class="space-y-3">
+                                                        <template x-for="it in record.items" :key="it.id">
+                                                            <div
+                                                                class="bg-white rounded-xl p-4 border border-gray-200">
+                                                                <div class="flex justify-between items-start gap-3">
+                                                                    <div class="flex-1 min-w-0">
+                                                                        <p class="font-medium text-gray-900 mb-1"
+                                                                            x-text="(it.cantidad || 1) + '× ' + (it.nombre || 'Servicio')">
+                                                                        </p>
+
+                                                                        <div
+                                                                            class="flex flex-wrap items-center gap-3 text-xs text-gray-600">
+                                                                            <template x-if="it.empleado">
+                                                                                <span class="flex items-center gap-1">
+                                                                                    <svg class="w-3 h-3"
+                                                                                        fill="currentColor"
+                                                                                        viewBox="0 0 20 20">
+                                                                                        <path fill-rule="evenodd"
+                                                                                            d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                                                                            clip-rule="evenodd" />
+                                                                                    </svg>
+                                                                                    <span x-text="it.empleado"></span>
+                                                                                </span>
+                                                                            </template>
+                                                                            <span>•</span>
+                                                                            <span
+                                                                                x-text="(it.duracion || 0) + ' minutos'"></span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <span class="text-sm font-semibold text-gray-900"
+                                                                        x-text="money(it.total_linea)"></span>
+                                                                </div>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Resumen Financiero -->
+                                                <div class="bg-white rounded-xl p-4 border border-gray-200 mb-4">
+                                                    <h4
+                                                        class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">
+                                                        Resumen de Costos
+                                                    </h4>
+                                                    <div class="space-y-2 text-sm">
+                                                        <div class="flex justify-between">
+                                                            <span class="text-gray-600">Subtotal</span>
+                                                            <span class="font-medium text-gray-900"
+                                                                x-text="money(record.bruto)"></span>
+                                                        </div>
+
+                                                        <template x-if="record.desc_lineas > 0">
+                                                            <div class="flex justify-between">
+                                                                <span class="text-gray-600">Descuentos (x
+                                                                    servicios)</span>
+                                                                <span class="text-red-600 font-medium"
+                                                                    x-text="'-' + money(record.desc_lineas)"></span>
+                                                            </div>
+                                                        </template>
+
+                                                        <template x-if="record.desc_orden > 0">
+                                                            <div class="flex justify-between">
+                                                                <span class="text-gray-600">Descuento general</span>
+                                                                <span class="text-red-600 font-medium"
+                                                                    x-text="'-' + money(record.desc_orden)"></span>
+                                                            </div>
+                                                        </template>
+
+                                                        <div class="border-t border-gray-200 pt-2 mt-3">
+                                                            <div class="flex justify-between items-center">
+                                                                <span class="font-semibold text-gray-900">Total
+                                                                    Final</span>
+                                                                <span class="font-bold text-lg text-gray-900"
+                                                                    x-text="money(record.neto)"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Notas -->
+                                                <template x-if="record.notas">
+                                                    <div class="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                                                        <h4
+                                                            class="text-sm font-semibold text-gray-900 mb-2 uppercase tracking-wide">
+                                                            Notas
+                                                        </h4>
+                                                        <p class="text-sm text-gray-700 leading-relaxed"
+                                                            x-text="record.notas"></p>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
 
                 <!-- Modal Empleado -->
                 <div x-show="showEmployeeForm" x-transition
@@ -378,6 +632,19 @@
                                     return '#64748b';
                             }
                         },
+
+                        money(v) {
+                            try {
+                                return new Intl.NumberFormat('es-MX', {
+                                    style: 'currency',
+                                    currency: 'MXN',
+                                    maximumFractionDigits: 0
+                                }).format(v || 0);
+                            } catch (_) {
+                                return '$' + (v || 0);
+                            }
+                        },
+
 
                         // lifecycle
                         async init() {
@@ -574,6 +841,74 @@
                                 this.alertError(e.message || 'Error al reactivar');
                             }
                         },
+
+                        // Estado para historial empleado
+                        showHistoryEmp: false,
+                        historyEmployee: null,
+                        historyEmp: [],
+                        historyLoadingEmp: false,
+                        expandedEmp: {},
+
+                        toggleEmp(id) {
+                            this.expandedEmp[id] = !this.expandedEmp[id];
+                        },
+                        closeHistoryEmp() {
+                            this.showHistoryEmp = false;
+                            this.historyEmp = [];
+                            this.expandedEmp = {};
+                            this.historyEmployee = null;
+                        },
+
+                        async openHistoryEmp(emp) {
+                            this.showHistoryEmp = true;
+                            this.historyEmployee = emp;
+                            this.historyLoadingEmp = true;
+                            this.historyEmp = [];
+                            this.expandedEmp = {};
+                            try {
+                                const r = await fetch(`/app/empleados/${emp.id}/historial`, {
+                                    headers: {
+                                        Accept: 'application/json'
+                                    }
+                                });
+                                const d = await r.json();
+                                if (!r.ok) throw new Error(d.error || 'No se pudo cargar el historial');
+                                // Mapea como lo haces en clientes:
+                                this.historyEmp = (d.historial || []).map(x => ({
+                                    id: x.id,
+                                    fecha_larga: x.fecha_larga,
+                                    hora_rango: x.hora_rango,
+                                    duracion_label: x.duracion_label,
+                                    estado: x.estado || 'pendiente',
+                                    notas: x.notas || '',
+                                    bruto: x.totales.bruto,
+                                    desc_lineas: x.totales.desc_lineas,
+                                    desc_orden: x.totales.desc_orden,
+                                    neto: x.totales.neto,
+                                    items: (x.items || []).map(it => ({
+                                        id: it.id,
+                                        nombre: it.nombre_snapshot,
+                                        cantidad: it.cantidad,
+                                        duracion: it.duracion_minutos_snapshot,
+                                        empleado: it.empleado_nombre || null,
+                                        total_linea: Math.max(0, (it
+                                            .precio_snapshot * it.cantidad
+                                        ) - (it.descuento || 0))
+                                    })),
+                                }));
+                            } catch (e) {
+                                console.error(e);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: e.message || 'No se pudo cargar el historial'
+                                });
+                                this.showHistoryEmp = false;
+                            } finally {
+                                this.historyLoadingEmp = false;
+                            }
+                        },
+
                     }));
                 });
             </script>

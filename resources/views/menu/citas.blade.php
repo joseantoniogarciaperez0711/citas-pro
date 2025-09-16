@@ -444,7 +444,8 @@
                                         @input.debounce.300ms="persistState"
                                         class="input-modern w-full px-3 py-2 rounded-lg mt-1">
                                     <p class="text-[11px] text-gray-500 mt-1">
-                                        Se aplica sobre el <strong>subtotal</strong> después de los descuentos x servicio.
+                                        Se aplica sobre el <strong>subtotal</strong> después de los descuentos x
+                                        servicio.
                                     </p>
                                 </div>
                             </div>
@@ -977,7 +978,7 @@ ${lines}
 
 ${totales.join('\n')}${notasLine}
 
-Gracias.`;
+Llegar con 10 minutos de anticipación de lo contrario su cita será cancelada. Gracias.`;
                     },
 
                     buildWhatsappUrl() {
@@ -1331,18 +1332,18 @@ Gracias.`;
         ${
           waUrl
           ? `<a href="${waUrl}" target="_blank" rel="noopener"
-                                                                                                                class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#25D366] text-white font-semibold shadow hover:brightness-95">
-                                                                                                                <svg class="w-5 h-5" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
-                                                                                                                  <path d="M16.01 3.2C9.38 3.2 4 8.58 4 15.21c0 2.67.86 5.14 2.33 7.15L4.8 28.8l6.62-1.74c1.92 1.05 4.13 1.65 6.48 1.65 6.63 0 12.01-5.38 12.01-12.01S22.64 3.2 16.01 3.2zm0 21.88c-2.26 0-4.35-.69-6.1-1.88l-.44-.28-3.91 1.03 1.04-3.82-.29-.47a10.22 10.22 0 01-1.58-5.45c0-5.66 4.6-10.26 10.28-10.26s10.28 4.6 10.28 10.26-4.62 10.27-10.29 10.27z"/>
-                                                                                                                  <path d="M19.11 17.5c-.27-.13-1.6-.79-1.84-.88-.24-.09-.42-.13-.6.13-.18.27-.69.88-.85 1.06-.16.18-.31.2-.58.07-.27-.13-1.14-.42-2.17-1.34-.8-.71-1.34-1.58-1.5-1.85-.16-.27-.02-.41.12-.54.13-.13.27-.31.4-.47.13-.16.18-.27.27-.45.09-.18.04-.34-.02-.47-.06-.13-.6-1.44-.82-1.97-.22-.53-.44-.46-.6-.47-.16-.01-.34-.01-.52-.01-.18 0-.47.07-.72.34-.24.27-.95.93-.95 2.27s.98 2.64 1.12 2.82c.13.18 1.93 2.95 4.68 4.13.65.28 1.16.45 1.56.58.65.21 1.24.18 1.7.11.52-.08 1.6-.65 1.83-1.28.22-.63.22-1.17.15-1.28-.07-.11-.25-.18-.52-.31z"/>
-                                                                                                                </svg>
-                                                                                                                Enviar por WhatsApp
-                                                                                                              </a>`
+                                                                                                                                class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#25D366] text-white font-semibold shadow hover:brightness-95">
+                                                                                                                                <svg class="w-5 h-5" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+                                                                                                                                  <path d="M16.01 3.2C9.38 3.2 4 8.58 4 15.21c0 2.67.86 5.14 2.33 7.15L4.8 28.8l6.62-1.74c1.92 1.05 4.13 1.65 6.48 1.65 6.63 0 12.01-5.38 12.01-12.01S22.64 3.2 16.01 3.2zm0 21.88c-2.26 0-4.35-.69-6.1-1.88l-.44-.28-3.91 1.03 1.04-3.82-.29-.47a10.22 10.22 0 01-1.58-5.45c0-5.66 4.6-10.26 10.28-10.26s10.28 4.6 10.28 10.26-4.62 10.27-10.29 10.27z"/>
+                                                                                                                                  <path d="M19.11 17.5c-.27-.13-1.6-.79-1.84-.88-.24-.09-.42-.13-.6.13-.18.27-.69.88-.85 1.06-.16.18-.31.2-.58.07-.27-.13-1.14-.42-2.17-1.34-.8-.71-1.34-1.58-1.5-1.85-.16-.27-.02-.41.12-.54.13-.13.27-.31.4-.47.13-.16.18-.27.27-.45.09-.18.04-.34-.02-.47-.06-.13-.6-1.44-.82-1.97-.22-.53-.44-.46-.6-.47-.16-.01-.34-.01-.52-.01-.18 0-.47.07-.72.34-.24.27-.95.93-.95 2.27s.98 2.64 1.12 2.82c.13.18 1.93 2.95 4.68 4.13.65.28 1.16.45 1.56.58.65.21 1.24.18 1.7.11.52-.08 1.6-.65 1.83-1.28.22-.63.22-1.17.15-1.28-.07-.11-.25-.18-.52-.31z"/>
+                                                                                                                                </svg>
+                                                                                                                                Enviar por WhatsApp
+                                                                                                                              </a>`
           : `<div class="mt-3 text-xs text-rose-600">No encontré teléfono del cliente. Puedes copiar el mensaje.</div>
-                                                                                                             <button id="copyWa"
-                                                                                                                     class="mt-2 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-gray-700 hover:bg-gray-50">
-                                                                                                               Copiar mensaje
-                                                                                                             </button>`
+                                                                                                                             <button id="copyWa"
+                                                                                                                                     class="mt-2 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-gray-700 hover:bg-gray-50">
+                                                                                                                               Copiar mensaje
+                                                                                                                             </button>`
         }
       `,
                                 focusConfirm: false,
