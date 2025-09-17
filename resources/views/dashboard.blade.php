@@ -1201,39 +1201,84 @@
             <section class="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
 
 
-                <!-- Citas y Clientes Card -->
-                <div class="dashboard-card kpi-card fade-in">
+                <!-- Citas y Clientes Card (mejorada) -->
+                <div class="dashboard-card kpi-card fade-in relative overflow-hidden">
+                    <!-- halo sutil -->
+                    <div
+                        class="pointer-events-none absolute inset-0 bg-gradient-to-br from-slate-900/0 via-slate-900/0 to-slate-900/20">
+                    </div>
+
                     <div class="grid grid-cols-2 gap-2 sm:gap-4">
-                        <div class="text-center">
-                            <div
-                                class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg gradient-blue flex items-center justify-center mx-auto mb-1 sm:mb-2">
-                                <svg class="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                    </path>
-                                </svg>
+                        <!-- KPI: Citas hoy -->
+                        <div class="rounded-xl bg-slate-800/60 border border-slate-700/60 p-3 sm:p-4 shadow-inner">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div
+                                        class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-blue-500/20 border border-blue-400/30 grid place-content-center">
+                                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-300" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 7V3m8 4V3M5 11h14M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2" />
+                                        </svg>
+                                    </div>
+                                    <span class="text-[11px] sm:text-xs font-semibold text-blue-200/90">Citas
+                                        hoy</span>
+                                </div>
                             </div>
-                            <div class="text-lg sm:text-xl font-bold text-white mb-1" x-text="kpi.citas_hoy"></div>
-                            <div class="text-xs text-gray-400">Citas Hoy</div>
+
+                            <div class="mt-2 flex items-end gap-2">
+                                <div class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white"
+                                    x-text="kpi.citas_hoy"></div>
+                                <span class="text-[11px] text-slate-400">hoy</span>
+                            </div>
                         </div>
-                        <div class="text-center">
-                            <div
-                                class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg gradient-purple flex items-center justify-center mx-auto mb-1 sm:mb-2">
-                                <svg class="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
-                                    </path>
-                                </svg>
+
+                        <!-- KPI: Clientes en el periodo -->
+                        <div class="rounded-xl bg-slate-800/60 border border-slate-700/60 p-3 sm:p-4 shadow-inner">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div
+                                        class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-purple-500/20 border border-purple-400/30 grid place-content-center">
+                                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-purple-300" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0m6 3a2 2 0 11-4 0 2 2 0 014 0M7 10a2 2 0 11-4 0 2 2 0 014 0" />
+                                        </svg>
+                                    </div>
+                                    <span
+                                        class="text-[11px] sm:text-xs font-semibold text-purple-200/90">Clientes</span>
+                                </div>
                             </div>
-                            <div class="text-lg sm:text-xl font-bold text-white mb-1" x-text="kpi.clientes_periodo">
+
+                            <div class="mt-2 flex items-end gap-2">
+                                <div class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white"
+                                    x-text="kpi.clientes_periodo"></div>
+                                <span class="text-[11px] text-slate-400">en el periodo</span>
                             </div>
-                            <div class="text-xs text-gray-400">Clientes</div>
                         </div>
                     </div>
-                    <div class="text-xs text-gray-500 text-center mt-3" x-text="periodLabel"></div>
+
+                    <!-- Pie con rango activo -->
+                    <div class="mt-3 flex items-center justify-center gap-2 text-[11px] sm:text-xs text-gray-400">
+                        <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3M5 11h14M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2" />
+                        </svg>
+                        <span x-text="periodLabel"></span>
+                    </div>
+
+                    <!-- Loading overlay -->
+                    <div x-show="loading"
+                        class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm grid place-content-center">
+                        <div
+                            class="flex items-center gap-3 text-white bg-slate-800/90 px-4 py-2 rounded-lg border border-slate-700">
+                            <div class="loading-spinner"></div>
+                            <span class="text-sm">Cargando…</span>
+                        </div>
+                    </div>
                 </div>
+
 
                 <!-- Clientes más frecuentes (pro) -->
                 <div class="dashboard-card kpi-card fade-in">

@@ -1,6 +1,8 @@
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
 
-    @if (Auth::check() && Auth::user()->status_membresia === 'inactiva')
+    @if (Auth::check() &&
+            (Auth::user()->status_membresia === 'inactiva' ||
+                (Auth::user()->fecha_fin_membresia && \Carbon\Carbon::parse(Auth::user()->fecha_fin_membresia)->lt(now()))))
         <!-- Control del efecto + modal -->
         <div x-data="{ showModal: false, isDisintegrating: false }" x-init="setTimeout(() => {
             isDisintegrating = true;
@@ -241,11 +243,6 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
-                    {{-- Citas --}}
-                    <x-nav-link href="{{ route('app.citas') }}" :active="request()->routeIs('app.citas*')">
-                        {{ __('Citas') }}
-                    </x-nav-link>
-
                     {{-- Clientes --}}
                     <x-nav-link href="{{ route('app.clientes') }}" :active="request()->routeIs('app.clientes*')">
                         {{ __('Clientes') }}
@@ -409,18 +406,6 @@
                             d="M3 12l9-7 9 7M5 10v10a2 2 0 002 2h10a2 2 0 002-2V10" />
                     </svg>
                     <span>{{ __('Dashboard') }}</span>
-                </span>
-            </x-responsive-nav-link>
-
-            {{-- Citas --}}
-            <x-responsive-nav-link href="{{ route('app.citas') }}" :active="request()->routeIs('app.citas*')">
-                <span class="flex items-center gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-none" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7H3v12a2 2 0 002 2z" />
-                    </svg>
-                    <span>{{ __('Citas') }}</span>
                 </span>
             </x-responsive-nav-link>
 
