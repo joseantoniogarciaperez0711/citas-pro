@@ -17,6 +17,11 @@ Route::get('/', function () {
 });
 
 
+Route::get('/tienda', function () {
+    return view('clientes/tienda');
+});
+
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
@@ -112,3 +117,6 @@ Route::middleware(['auth', 'verified'])
         Route::delete('/citas/{cita}', [CitaController::class, 'destroy'])->name('citas.destroy');
         Route::put('/citas/{cita}/estado', [CitaController::class, 'estado'])->name('citas.estado');
     });
+
+
+
