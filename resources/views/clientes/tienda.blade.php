@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tienda</title>
     <!-- Favicon -->
-<link rel="icon" href="https://tuservidor.com/ruta/logo.png" type="image/png">
+    <link rel="icon" href="https://tuservidor.com/ruta/logo.png" type="image/png">
 
 
 
@@ -914,55 +914,58 @@
         </div>
     </nav>
 
-   <section class="slider-section" id="sliderServicios">
-  <h2 class="section-title">Servicios Premium Populares</h2>
-  <div class="slider-container">
-    <div class="slider-track">
+    <section class="slider-section" id="sliderServicios">
+        <h2 class="section-title">Servicios Premium Populares</h2>
+        <div class="slider-container">
+            <div class="slider-track">
 
-      <!-- Slide -->
-      <div class="slide">
-        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop&q=80" alt="Tour por la Ciudad">
-        <div class="slide-overlay">
-          <div class="slide-info">
-            <h3>Tour por la Ciudad</h3>
-            <p>Explora la ciudad con comodidad y estilo en transporte premium con guía especializado.</p>
-            <div class="service-footer">
-              <span class="service-price">$80</span>
-              <button class="detail-btn" onclick="openModal('tour')">Ver Detalles</button>
+                <!-- Slide -->
+                <div class="slide">
+                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop&q=80"
+                        alt="Tour por la Ciudad">
+                    <div class="slide-overlay">
+                        <div class="slide-info">
+                            <h3>Tour por la Ciudad</h3>
+                            <p>Explora la ciudad con comodidad y estilo en transporte premium con guía especializado.
+                            </p>
+                            <div class="service-footer">
+                                <span class="service-price">$80</span>
+                                <button class="detail-btn" onclick="openModal('tour')">Ver Detalles</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide -->
+                <div class="slide">
+                    <img src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=1200&h=800&fit=crop&q=80"
+                        alt="Peinado Profesional">
+                    <div class="slide-overlay">
+                        <div class="slide-info">
+                            <h3>Peinado Profesional</h3>
+                            <p>Peinados elegantes y sofisticados para cualquier ocasión especial.</p>
+                            <div class="service-footer">
+                                <span class="service-price">$35</span>
+                                <button class="detail-btn" onclick="openModal('peinado')">Ver Detalles</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Más slides... -->
+
             </div>
-          </div>
+
+            <!-- Indicadores -->
+            <div class="slider-dots"></div>
         </div>
-      </div>
+    </section>
 
-      <!-- Slide -->
-      <div class="slide">
-        <img src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=1200&h=800&fit=crop&q=80" alt="Peinado Profesional">
-        <div class="slide-overlay">
-          <div class="slide-info">
-            <h3>Peinado Profesional</h3>
-            <p>Peinados elegantes y sofisticados para cualquier ocasión especial.</p>
-            <div class="service-footer">
-              <span class="service-price">$35</span>
-              <button class="detail-btn" onclick="openModal('peinado')">Ver Detalles</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Más slides... -->
-
-    </div>
-
-    <!-- Indicadores -->
-    <div class="slider-dots"></div>
-  </div>
-</section>
-
-<style>
-/* Sección */
+    <style>
+        /* ===== SECCIÓN SLIDER ===== */
 .slider-section {
   padding: 2rem 1rem;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 .section-title {
@@ -973,7 +976,7 @@
   color: #1a1a1a;
 }
 
-/* Slider */
+/* ===== SLIDER ===== */
 .slider-container {
   position: relative;
   overflow: hidden;
@@ -995,57 +998,67 @@
   box-shadow: 0 8px 24px rgba(0,0,0,0.25);
 }
 
-/* Overlay tipo portada */
+/* ===== OVERLAY Y DETALLES ===== */
 .slide-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.2));
   display: flex;
   align-items: flex-end;
-  padding: 2rem;
+  justify-content: center;
+  padding: 1rem;
   border-radius: 1rem;
+  pointer-events: none; /* permite que la imagen reciba gestos de swipe */
 }
 .slide-info {
   color: #fff;
-  max-width: 600px;
+  backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.5);
+  padding: 0.8rem 1rem;
+  border-radius: 0.8rem;
+  text-align: center;
+  width: auto;
+  max-width: 90%;
+  pointer-events: auto; /* habilita clic en botón */
 }
 .slide-info h3 {
-  font-size: 1.8rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
 }
 .slide-info p {
-  font-size: 1rem;
-  margin-bottom: 1rem;
-  line-height: 1.5;
+  font-size: 0.85rem;
+  margin-bottom: 0.8rem;
+  line-height: 1.4;
+  color: #e5e5e5;
 }
 .service-footer {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
+  gap: 0.8rem;
 }
 .service-price {
-  font-size: 1.4rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  color: #007dd1; /* Azul premium */
+  color: #007dd1; /* azul premium */
 }
 .detail-btn {
-  background: rgba(255,255,255,0.15);
+  background: #007dd1;
   color: #fff;
-  border: 1px solid rgba(255,255,255,0.4);
-  padding: 0.6rem 1.2rem;
-  font-size: 0.95rem;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
   border-radius: 999px;
   cursor: pointer;
-  transition: all 0.3s;
-  backdrop-filter: blur(6px);
+  transition: background 0.3s, transform 0.2s;
 }
 .detail-btn:hover {
-  background: rgba(255,255,255,0.3);
-  border-color: #fff;
+  background: #005fa3;
+  transform: translateY(-2px);
 }
 
-/* Indicadores */
+/* ===== INDICADORES ===== */
 .slider-dots {
   text-align: center;
   margin-top: 1rem;
@@ -1065,70 +1078,98 @@
   transform: scale(1.2);
 }
 
-/* Responsivo */
-@media (max-width: 768px) {
-  .slide img { height: 280px; }
-  .slide-info h3 { font-size: 1.3rem; }
-  .slide-info p { font-size: 0.9rem; }
-  .service-price { font-size: 1.1rem; }
-}
-</style>
-
-<script>
-const track = document.querySelector('.slider-track');
-const slides = document.querySelectorAll('.slide');
-const dotsContainer = document.querySelector('.slider-dots');
-
-let index = 0;
-
-// Crear puntos dinámicos
-slides.forEach((_, i) => {
-  const dot = document.createElement('button');
-  if (i === 0) dot.classList.add('active');
-  dot.addEventListener('click', () => showSlide(i));
-  dotsContainer.appendChild(dot);
-});
-const dots = dotsContainer.querySelectorAll('button');
-
-function showSlide(i) {
-  if (i < 0) index = slides.length - 1;
-  else if (i >= slides.length) index = 0;
-  else index = i;
-  track.style.transform = `translateX(-${index * 100}%)`;
-
-  dots.forEach(dot => dot.classList.remove('active'));
-  dots[index].classList.add('active');
-}
-
-// autoplay
-let autoPlay = setInterval(() => { showSlide(index + 1); }, 5000);
-
-// Swipe en móviles
-let startX = 0;
-let isDragging = false;
-
-track.addEventListener('touchstart', (e) => {
-  startX = e.touches[0].clientX;
-  isDragging = true;
-  clearInterval(autoPlay);
-});
-track.addEventListener('touchmove', (e) => {
-  if (!isDragging) return;
-  let moveX = e.touches[0].clientX;
-  let diff = startX - moveX;
-  if (diff > 50) { // deslizar izquierda
-    showSlide(index + 1);
-    isDragging = false;
-  } else if (diff < -50) { // deslizar derecha
-    showSlide(index - 1);
-    isDragging = false;
+/* ===== DESKTOP ===== */
+@media (min-width: 1024px) {
+  .slide img {
+    height: 550px;
   }
-});
-track.addEventListener('touchend', () => {
-  isDragging = false;
-  autoPlay = setInterval(() => { showSlide(index + 1); }, 5000);
-});
-</script>
+  .slide-overlay {
+    justify-content: flex-start;
+    align-items: center;
+    padding: 3rem;
+    background: linear-gradient(to right, rgba(0,0,0,0.6), rgba(0,0,0,0));
+  }
+  .slide-info {
+    max-width: 45%;
+    text-align: left;
+    padding: 2rem;
+  }
+  .slide-info h3 {
+    font-size: 2rem;
+  }
+  .slide-info p {
+    font-size: 1rem;
+  }
+  .service-footer {
+    justify-content: flex-start;
+  }
+  .detail-btn {
+    font-size: 1rem;
+    padding: 0.8rem 1.4rem;
+  }
+}
+
+    </style>
+
+    <script>
+        const track = document.querySelector('.slider-track');
+        const slides = document.querySelectorAll('.slide');
+        const dotsContainer = document.querySelector('.slider-dots');
+
+        let index = 0;
+
+        // Crear puntos dinámicos
+        slides.forEach((_, i) => {
+            const dot = document.createElement('button');
+            if (i === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => showSlide(i));
+            dotsContainer.appendChild(dot);
+        });
+        const dots = dotsContainer.querySelectorAll('button');
+
+        function showSlide(i) {
+            if (i < 0) index = slides.length - 1;
+            else if (i >= slides.length) index = 0;
+            else index = i;
+            track.style.transform = `translateX(-${index * 100}%)`;
+
+            dots.forEach(dot => dot.classList.remove('active'));
+            dots[index].classList.add('active');
+        }
+
+        // autoplay
+        let autoPlay = setInterval(() => {
+            showSlide(index + 1);
+        }, 5000);
+
+        // Swipe en móviles
+        let startX = 0;
+        let isDragging = false;
+
+        track.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+            clearInterval(autoPlay);
+        });
+        track.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            let moveX = e.touches[0].clientX;
+            let diff = startX - moveX;
+            if (diff > 50) { // deslizar izquierda
+                showSlide(index + 1);
+                isDragging = false;
+            } else if (diff < -50) { // deslizar derecha
+                showSlide(index - 1);
+                isDragging = false;
+            }
+        });
+        track.addEventListener('touchend', () => {
+            isDragging = false;
+            autoPlay = setInterval(() => {
+                showSlide(index + 1);
+            }, 5000);
+        });
+    </script>
 
 
     <section class="categories-section">
@@ -1163,198 +1204,220 @@ track.addEventListener('touchend', () => {
     </section>
 
     <section class="services-section" id="servicios">
-  <div class="services-header">
-    <h2 class="services-title">Todos los Servicios</h2>
-    <div class="filter-controls">
-      <button class="filter-btn active" onclick="filterByCategory('all')">Todos</button>
-      <button class="filter-btn" onclick="filterByCategory('transporte')">Transporte</button>
-      <button class="filter-btn" onclick="filterByCategory('belleza')">Belleza</button>
-      <button class="filter-btn" onclick="filterByCategory('barberia')">Barbería</button>
-      <button class="filter-btn" onclick="filterByCategory('bienestar')">Bienestar</button>
-      <span class="clear-filters" onclick="clearFilters()">Limpiar filtros</span>
-    </div>
-  </div>
-
-  <div class="services-grid" id="servicesGrid">
-    <!-- Service Card -->
-    <div class="service-card" data-category="transporte" data-service-id="tour">
-      <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=220&fit=crop&q=80" alt="Tour por la Ciudad" class="service-image">
-      <div class="service-content">
-        <div class="service-badge">Transporte</div>
-        <h3 class="service-title">Tour por la Ciudad</h3>
-        <p class="service-description">Explora la ciudad con comodidad y estilo en transporte premium con guía especializado.</p>
-        <div class="service-footer">
-          <span class="service-price">$80</span>
-          <button class="detail-btn" onclick="openModal('tour')">Ver Detalles</button>
+        <div class="services-header">
+            <h2 class="services-title">Todos los Servicios</h2>
+            <div class="filter-controls">
+                <button class="filter-btn active" onclick="filterByCategory('all')">Todos</button>
+                <button class="filter-btn" onclick="filterByCategory('transporte')">Transporte</button>
+                <button class="filter-btn" onclick="filterByCategory('belleza')">Belleza</button>
+                <button class="filter-btn" onclick="filterByCategory('barberia')">Barbería</button>
+                <button class="filter-btn" onclick="filterByCategory('bienestar')">Bienestar</button>
+                <span class="clear-filters" onclick="clearFilters()">Limpiar filtros</span>
+            </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Otro ejemplo -->
-    <div class="service-card" data-category="belleza" data-service-id="peinado">
-      <img src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400&h=220&fit=crop&q=80" alt="Peinado Profesional" class="service-image">
-      <div class="service-content">
-        <div class="service-badge">Belleza</div>
-        <h3 class="service-title">Peinado Profesional</h3>
-        <p class="service-description">Peinados elegantes y sofisticados para cualquier ocasión especial con productos premium.</p>
-        <div class="service-footer">
-          <span class="service-price">$35</span>
-          <button class="detail-btn" onclick="openModal('peinado')">Ver Detalles</button>
+        <div class="services-grid" id="servicesGrid">
+            <!-- Service Card -->
+            <div class="service-card" data-category="transporte" data-service-id="tour">
+                <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=220&fit=crop&q=80"
+                    alt="Tour por la Ciudad" class="service-image">
+                <div class="service-content">
+                    <div class="service-badge">Transporte</div>
+                    <h3 class="service-title">Tour por la Ciudad</h3>
+                    <p class="service-description">Explora la ciudad con comodidad y estilo en transporte premium con
+                        guía especializado.</p>
+                    <div class="service-footer">
+                        <span class="service-price">$80</span>
+                        <button class="detail-btn" onclick="openModal('tour')">Ver Detalles</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otro ejemplo -->
+            <div class="service-card" data-category="belleza" data-service-id="peinado">
+                <img src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400&h=220&fit=crop&q=80"
+                    alt="Peinado Profesional" class="service-image">
+                <div class="service-content">
+                    <div class="service-badge">Belleza</div>
+                    <h3 class="service-title">Peinado Profesional</h3>
+                    <p class="service-description">Peinados elegantes y sofisticados para cualquier ocasión especial
+                        con productos premium.</p>
+                    <div class="service-footer">
+                        <span class="service-price">$35</span>
+                        <button class="detail-btn" onclick="openModal('peinado')">Ver Detalles</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Resto de servicios... -->
         </div>
-      </div>
-    </div>
-    <!-- Resto de servicios... -->
-  </div>
 
-  <div class="no-results" id="noResults" style="display: none;">
-    <div class="no-results-icon">🔍</div>
-    <h3>No se encontraron servicios</h3>
-    <p>Intenta con otros términos de búsqueda o categorías</p>
-  </div>
-</section>
+        <div class="no-results" id="noResults" style="display: none;">
+            <div class="no-results-icon">🔍</div>
+            <h3>No se encontraron servicios</h3>
+            <p>Intenta con otros términos de búsqueda o categorías</p>
+        </div>
+    </section>
 
-<style>
-/* ===== SECCIÓN ===== */
-.services-section {
-  padding: 1.5rem 1rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-.services-title {
-  font-size: 1.6rem;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 1rem;
-  color: #1a1a1a;
-}
+    <style>
+        /* ===== SECCIÓN ===== */
+        .services-section {
+            padding: 1.5rem 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-/* ===== FILTROS ===== */
-.filter-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-}
-.filter-btn {
-  background: #f4f4f4;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-.filter-btn.active {
-  background: #0066ff;
-  color: #fff;
-  font-weight: 600;
-}
-.filter-btn:hover {
-  background: #e0e0e0;
-}
-.clear-filters {
-  font-size: 0.85rem;
-  color: #0066ff;
-  cursor: pointer;
-  align-self: center;
-}
+        .services-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: #1a1a1a;
+        }
 
-/* ===== GRID DE SERVICIOS ===== */
-.services-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-@media (min-width: 600px) {
-  .services-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (min-width: 900px) {
-  .services-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
+        /* ===== FILTROS ===== */
+        .filter-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
 
-/* ===== TARJETAS ===== */
-.service-card {
-  background: #fff;
-  border-radius: 1rem;
-  overflow: hidden;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-.service-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-}
-.service-image {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-}
-.service-content {
-  padding: 1rem;
-}
-.service-badge {
-  display: inline-block;
-  font-size: 0.75rem;
-  padding: 0.3rem 0.7rem;
-  border-radius: 999px;
-  background: #eef3ff;
-  color: #0066ff;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-}
-.service-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 0.4rem;
-}
-.service-description {
-  font-size: 0.9rem;
-  color: #555;
-  margin-bottom: 1rem;
-  line-height: 1.4;
-}
-.service-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.service-price {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #0066ff;
-}
-.detail-btn {
-  background: #0066ff;
-  color: #fff;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-.detail-btn:hover {
-  background: #004bb3;
-}
+        .filter-btn {
+            background: #f4f4f4;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
 
-/* ===== NO RESULTADOS ===== */
-.no-results {
-  text-align: center;
-  padding: 2rem 1rem;
-  color: #555;
-}
-.no-results-icon {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-}
-</style>
+        .filter-btn.active {
+            background: #0066ff;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .filter-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .clear-filters {
+            font-size: 0.85rem;
+            color: #0066ff;
+            cursor: pointer;
+            align-self: center;
+        }
+
+        /* ===== GRID DE SERVICIOS ===== */
+        .services-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (min-width: 600px) {
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 900px) {
+            .services-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* ===== TARJETAS ===== */
+        .service-card {
+            background: #fff;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .service-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .service-content {
+            padding: 1rem;
+        }
+
+        .service-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 999px;
+            background: #eef3ff;
+            color: #0066ff;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .service-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .service-description {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .service-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .service-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0066ff;
+        }
+
+        .detail-btn {
+            background: #0066ff;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .detail-btn:hover {
+            background: #004bb3;
+        }
+
+        /* ===== NO RESULTADOS ===== */
+        .no-results {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #555;
+        }
+
+        .no-results-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
 
 
     <!-- Modal de Detalles -->
