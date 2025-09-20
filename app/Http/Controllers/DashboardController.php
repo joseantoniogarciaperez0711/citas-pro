@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
+use App\Models\StorefrontLink;   // o TiendaEnlace si así lo llamaste
+use Illuminate\Support\Str;
+
 /**
  * Devuelve todo lo necesario para el dashboard:
  * - KPIs del periodo
@@ -40,8 +43,27 @@ class DashboardController extends Controller
 
     public function view()
     {
-        return view('dashboard'); // resources/views/dashboard.blade.php
+        $u = auth()->user();
+
+        $link = StorefrontLink::firstOrCreate(
+            ['usuario_id' => $u->id],
+            ['token' => (string) Str::uuid(), 'es_activo' => 1]
+        );
+
+        // Preview del dueño (SOLO token del negocio)
+        $storefrontUrl = route('vista.cliente', ['bizToken' => $link->token]);
+
+        // Alias para que el Blade que usa $previewUrl no truene
+        $previewUrl = $storefrontUrl;
+
+        // Login para enviar al cliente (copia al portapapeles)
+        $brandLoginUrl = route('clientes.login', ['token' => $link->token]);
+
+        return view('dashboard', compact('storefrontUrl', 'brandLoginUrl', 'previewUrl'));
     }
+
+
+
 
     public function data(Request $request)
     {

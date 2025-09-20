@@ -1,39 +1,133 @@
 {{-- resources/views/dashboard.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between px-2">
-            <h2 class="font-bold text-xl sm:text-2xl text-black">
-                {{ __('Dashboard') }}
-            </h2>
-            <div class="flex items-center gap-2">
-                <a href="{{ route('app.clientes') }}" title="Agendar cita (Alt+N)"
-                    class="group inline-flex items-center gap-2 rounded-xl px-3.5 py-2 sm:px-4 sm:py-2.5
-    bg-blue-600 text-white font-semibold text-sm shadow-sm ring-1 ring-blue-600/20
-    hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5
-    active:bg-blue-800 active:translate-y-0
-    focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
+        <div class="px-2">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
 
-                    <!-- Icono calendario + (agendar) -->
-                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-blue-500/20">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7V3m8 4V3M5 11h14M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 13v4m2-2H10" />
-                        </svg>
-                    </span>
+                <!-- Título -->
+                <h2 class="font-bold text-xl sm:text-2xl text-black">
+                    {{ __('Dashboard') }}
+                </h2>
 
-                    <!-- Texto siempre visible -->
-                    <span class="inline">Agendar cita</span>
-                </a>
+                <!-- Botones -->
+                <div class="flex flex-row flex-wrap items-center gap-2">
+                    <!-- Botón Agendar cita -->
+                    <a href="{{ route('app.clientes') }}" title="Agendar cita (Alt+N)"
+                        class="group inline-flex items-center gap-2 rounded-xl px-3.5 py-2 sm:px-4 sm:py-2.5
+                    bg-blue-600 text-white font-semibold text-sm shadow-sm ring-1 ring-blue-600/20
+                    hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5
+                    active:bg-blue-800 active:translate-y-0
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
+
+                        <span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-blue-500/20">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3M5 11h14M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 13v4m2-2H10" />
+                            </svg>
+                        </span>
+                        <span class="inline">Agendar cita</span>
+                    </a>
+
+                    {{-- Botón "Mi tienda" (dropdown con SweetAlert) --}}
+                    @if (in_array(Auth::user()->plan_actual, ['pro', 'premium']))
+                        <div class="relative" x-data="{
+                            open: false,
+                            copyLogin() {
+                                const url = @js($brandLoginUrl); // /clientes/login/{token} (branding)
+                                navigator.clipboard.writeText(url).then(() => {
+                                    this.open = false;
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: '¡Enlace copiado!',
+                                        text: 'Se copió el enlace de login de tu tienda al portapapeles.',
+                                        timer: 4500,
+                                        showConfirmButton: false,
+                                        toast: true,
+                                        position: 'top-end'
+                                    });
+                                }).catch(() => {
+                                    this.open = false;
+                                    Swal.fire({
+                                        icon: 'info',
+                                        title: 'Copia el enlace',
+                                        input: 'text',
+                                        inputValue: url,
+                                        confirmButtonText: 'OK'
+                                    });
+                                });
+                            }
+                        }">
+                            <button @click="open = !open"
+                                class="group inline-flex items-center gap-2 rounded-xl px-3 py-2 sm:px-4 sm:py-2.5
+                   bg-emerald-600 text-white font-semibold text-sm shadow-sm ring-1 ring-emerald-600/20
+                   hover:bg-emerald-700 hover:shadow-md hover:-translate-y-0.5
+                   active:bg-emerald-800 active:translate-y-0
+                   focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                                title="Opciones de tu tienda">
+                                <span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-white/10">
+                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 9h18l-1 11H4L3 9z"></path>
+                                        <path d="M16 13a4 4 0 0 1-8 0"></path>
+                                        <path d="M5 9V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3"></path>
+                                    </svg>
+                                </span>
+                                <span class="hidden sm:inline">Mi tienda</span>
+                                <svg class="h-4 w-4 ml-1 opacity-80" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </button>
+
+                            <!-- Menú -->
+                            <div x-show="open" @click.outside="open=false" x-transition
+                                class="absolute right-0 mt-2 w-56 rounded-xl border border-gray-200 bg-white shadow-lg z-30 overflow-hidden">
+                                <!-- Ver como cliente (preview dueño) -->
+                                <a href="{{ $previewUrl }}" target="_blank" rel="noopener"
+                                    class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                                    <svg class="h-4 w-4 text-emerald-600" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    Ver como cliente
+                                </a>
+
+                                <!-- Enviar a cliente (copiar LOGIN con token del negocio) -->
+                                <button type="button" @click="copyLogin()"
+                                    class="w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                                    <svg class="h-4 w-4 text-emerald-600" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2">
+                                        </rect>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                    </svg>
+                                    Enviar a cliente (copiar enlace)
+                                </button>
+                            </div>
+                        </div>
+                    @endif
 
 
-                <!-- Píldora de fecha -->
-                <div class="inline-block px-4 py-1.5 rounded-full bg-gray-500 text-white
-                  text-sm sm:text-base font-semibold shadow-md transition"
-                    x-data
-                    x-text="new Date().toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' })">
+
+
+
+
+                    <!-- Píldora de fecha -->
+                    <div class="inline-block px-4 py-1.5 rounded-full bg-gray-500 text-white
+                    text-sm sm:text-base font-semibold shadow-md transition"
+                        x-data
+                        x-text="new Date().toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' })">
+                    </div>
                 </div>
             </div>
+        </div>
     </x-slot>
 
     <div class="min-h-screen bg-gray-100 pb-6">
@@ -656,7 +750,8 @@
 
                         <div class="flex-1">
                             <label class="sr-only" for="search-week">Buscar</label>
-                            <input id="search-week" type="text" x-model="search" placeholder="Buscar por cliente…"
+                            <input id="search-week" type="text" x-model="search"
+                                placeholder="Buscar por cliente…"
                                 class="w-full sm:w-64 bg-gray-800 text-gray-200 text-xs sm:text-sm rounded-md px-3 py-2
                            border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent">
                         </div>
@@ -2754,4 +2849,9 @@
 
 
     </div>
+
+
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </x-app-layout>

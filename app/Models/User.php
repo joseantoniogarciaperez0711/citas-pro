@@ -83,4 +83,9 @@ class User extends Authenticatable
         $seed = urlencode($this->business_name ?: $this->name);
         return "https://ui-avatars.com/api/?name={$seed}&background=F3F4F6&color=111827";
     }
+
+    public function storefrontLink()  // uno por usuario
+    {
+        return $this->hasOne(\App\Models\StorefrontLink::class, 'usuario_id');
+    }
 }

@@ -25,6 +25,7 @@ class Servicio extends Model
 
     protected $casts = [
         'activo' => 'boolean',
+        'precio' => 'decimal:2',
     ];
 
     public function categoria()
@@ -35,5 +36,10 @@ class Servicio extends Model
     public function empleado()
     {
         return $this->belongsTo(Empleado::class, 'profesional'); // columna 'profesional'
+    }
+
+     public function scopeActivos($q)
+    {
+        return $q->where('activo', true);
     }
 }

@@ -10,6 +10,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ClienteArchivoController;
 use App\Http\Controllers\CitaController;
+use App\Http\Controllers\TiendaPublicaController;
+use App\Http\Controllers\BrandLoginController;
+use App\Http\Controllers\PublicClientAuthController;
+
+
 
 
 Route::get('/', function () {
@@ -17,9 +22,51 @@ Route::get('/', function () {
 });
 
 
-Route::get('/tienda', function () {
-    return view('clientes/tienda');
-});
+
+
+Route::get('/login/brand/{token}', [BrandLoginController::class, 'fromToken'])
+    ->name('login.brand');
+
+// Login de clientes con branding por token
+Route::get('/clientes/login/{token}', [BrandLoginController::class, 'login'])
+    ->name('clientes.login');
+
+// (opcional) limpiar branding y volver al login genérico de clientes
+Route::get('/clientes/login/clear-brand', [BrandLoginController::class, 'clear'])
+    ->name('client.login.clear');
+
+Route::post('/clientes/login/check',    [PublicClientAuthController::class, 'check'])->name('public.clients.check');
+Route::post('/clientes/login/register', [PublicClientAuthController::class, 'register'])->name('public.clients.register');
+
+
+
+
+
+Route::get('/tienda/l/{bizToken}/{clientToken}/logout', function ($bizToken) {
+    return redirect()->route('clientes.login', ['token' => $bizToken]);
+})->name('cliente.logout.get');
+
+
+
+// Cliente (pública) → puede llevar el token del cliente
+Route::get('/tienda/l/{bizToken}/{clientToken?}', [TiendaPublicaController::class, 'show'])
+    ->name('tienda.publica');
+
+// Vista del dueño (preview) → SOLO token del negocio
+Route::get('/tienda/modoVistaCliente/{bizToken}', [TiendaPublicaController::class, 'vistaTienda'])
+    ->name('vista.cliente');
+
+
+
+    // Cliente: perfil y logout (requieren ambos tokens)
+Route::get('/tienda/l/{bizToken}/{clientToken}/perfil', [TiendaPublicaController::class, 'perfil'])
+    ->name('cliente.perfil');
+
+Route::post('/tienda/l/{bizToken}/{clientToken}/logout', [TiendaPublicaController::class, 'logout'])
+    ->name('cliente.logout');
+
+
+
 
 
 Route::middleware([
@@ -117,6 +164,3 @@ Route::middleware(['auth', 'verified'])
         Route::delete('/citas/{cita}', [CitaController::class, 'destroy'])->name('citas.destroy');
         Route::put('/citas/{cita}/estado', [CitaController::class, 'estado'])->name('citas.estado');
     });
-
-
-
